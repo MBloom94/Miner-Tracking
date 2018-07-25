@@ -8,5 +8,7 @@ Miner Tracker's purpose is to show statistics from the miner on a given interval
 
 Goals include: 
     Current statistics in a command line format
+    
     Current statistics in an animated graph format
+    
     Past statistics from open-able log text files
