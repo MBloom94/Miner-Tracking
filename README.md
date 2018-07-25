@@ -7,6 +7,7 @@ The mining software running is Claymore's Dual Ethereum + Decred/Siacoin/Lbry/Pa
 Miner Tracker's purpose is to show statistics from the miner on a given interval in a more readable format, faster and more accurate than the one for my mining pool. 
 
 Goals include: 
+
     Current statistics in a command line format
     
     Current statistics in an animated graph format
