@@ -91,4 +91,4 @@ try:
         # Pause for the interval - the execution time since start_time
         time.sleep(interval - ((time.time() - start_time) % interval))
 except KeyboardInterrupt:
-    print('Manual break by user')
+    print('Closing Miner Watcher...')
