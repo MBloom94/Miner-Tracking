@@ -78,14 +78,16 @@ def print_stats_pretty(stats):
         last_line[5]        # Fan speed %
     ))
 
-
 # Main Loop, runs until the user hits Ctrl-C to throw KeyboardInterrupt
 try:
     start_time = time.time()  # Save starting time
-    interval = 10.0  # Seconds
+    interval = 4.0  # Seconds
     while True:
         # Fetch current info and append them to list*2: stats
-        stats.append(get_new_stats())
+        if stats[0]:  # If stats[0] is not empty it returns True.
+            stats.append(get_new_stats())
+        else:  # If stats[0] IS empty, set new stats to the first item.
+            stats[0] = get_new_stats()
         # Display stats with formatting
         print_stats_pretty(stats)
         # Pause for the interval - the execution time since start_time
