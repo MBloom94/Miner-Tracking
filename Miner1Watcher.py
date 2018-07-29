@@ -73,11 +73,14 @@ class Watcher:
                 new_stats.append(self.stats_clumpy[ele].split(';')[item])
         return new_stats
 
-    def print_stats_pretty(self):
+    def print_stats_pretty(self, last_line = None):
         '''Print the last line of stats with additional formatting.'''
 
         # Assign last_line the last item in stats.
-        last_line = self.stats[-1]
+        # last_line = self.stats[-1]
+        if last_line is None:
+            last_line = self.stats[-1]
+
         # Assign pretty_stats a shell to be formatted
         pretty_stats = '{}, {}.{} Mh/s, {} Shares, {} Rejected, {}C, {}%'
         # Print with formatting
