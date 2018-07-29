@@ -47,11 +47,11 @@ class Watcher:
             self.stats.append(new_stats)
         elif allow_dup_time:  # If non unique uptimes are allowed
             self.stats.append(new_stats)
-        # else:
+        else:
             # In this case, stats is not empty, but the newest uptime is
             # the same as the most recent one, and that is not allowed.
             # print('Duplicate uptime stamp not allowed.')
-            # pass
+            pass
 
     def stretch_stats(self, stats_clumpy):
         '''Split and insert 2nd level list items into the parent lists.
