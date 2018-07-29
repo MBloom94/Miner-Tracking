@@ -30,7 +30,7 @@ class Watcher:
         s.close()
         return response
 
-    def get_new_stats(self):
+    def get_new_stats(self, allow_dup_time = False):
         '''Parse and return the 'result' from the response.'''
         response = self.get_new_response()
         # id = response['id']  Potentially use these in the future
@@ -40,11 +40,18 @@ class Watcher:
         new_stats = [result[1], result[2], result[6]]
         # Stretch 2 and 6 out into their own list items
         new_stats = self.stretch_stats(new_stats)
-        # Fetch current info and append them to list*2: stats
-        if self.stats[0]:  # If stats[0] is not empty it returns True.
-            self.stats.append(new_stats)
-        else:  # If stats[0] IS empty, set new stats to the first item.
+
+        if not self.stats[0]:  # If stats does not have anything in it
             self.stats[0] = new_stats
+        elif self.stats[-1][0] != new_stats[0]:  # If new uptime is different
+            self.stats.append(new_stats)
+        elif allow_dup_time:  # If non unique uptimes are allowed
+            self.stats.append(new_stats)
+        # else:
+            # In this case, stats is not empty, but the newest uptime is
+            # the same as the most recent one, and that is not allowed.
+            # print('Duplicate uptime stamp not allowed.')
+            # pass
 
     def stretch_stats(self, stats_clumpy):
         '''Split and insert 2nd level list items into the parent lists.
@@ -85,6 +92,23 @@ class Watcher:
             last_line[5]        # Fan speed %
         ))
 
+    @property
+    def uptime(self):
+        '''Get current uptime list.'''
+
+        uptime_list = []
+        for stat in self.stats:
+            uptime_list.append(int(stat[0]))
+        return uptime_list
+
+    @property
+    def hash_rate(self):
+        '''Get current hash rate list'''
+
+        hash_rate_list = []
+        for stat in self.stats:
+            hash_rate_list.append(int(stat[1]))
+        return hash_rate_list
 
 # Main Loop, runs until the user hits Ctrl-C to throw KeyboardInterrupt
 if __name__ == '__main__':
@@ -94,7 +118,7 @@ if __name__ == '__main__':
         interval = 4.0  # Seconds
         while True:
             # Update stats list with current stats
-            watcher.get_new_stats()
+            watcher.get_new_stats(allow_dup_time = True)
             # Print stats with formatting
             watcher.print_stats_pretty()
             # Pause for the interval - the execution time since start_time
