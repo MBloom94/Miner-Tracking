@@ -100,13 +100,13 @@ class Watcher:
         ))
 
     @property
-    def uptime(self):
+    def timestamp(self):
         '''Get current uptime list.'''
 
-        uptime_list = []
+        timestamp_list = []
         for stat in self.stats:
-            uptime_list.append(int(stat[0]))
-        return uptime_list
+            timestamp_list.append(stat[0])
+        return timestamp_list
 
     @property
     def hash_rate(self):
