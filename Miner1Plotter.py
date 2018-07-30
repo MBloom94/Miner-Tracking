@@ -1,6 +1,7 @@
 from matplotlib import pyplot as plt
 from matplotlib import animation
 from matplotlib.ticker import FuncFormatter
+import time
 import Miner1Watcher
 
 
@@ -29,13 +30,22 @@ def megahashes(x, pos):
 
 def hours_minutes(x, pos):
     '''Provide formatting for the x axis tickers.'''
-    return '{0:.0f}:{0:.0f}'.format(x/60, x%60)
+    h = str(int(x//60))
+    m = str(int(x%60))
+    if len(m) < 1:
+        m = '0' + m
+    x_hm = h + ':' + m
+    return x_hm.format('{0:.0f}')
+    # return '{0:.0f}:{0:.0f}'.format(x//60, x%60)
+    # return x
+    # return time.strftime('%H:%M', time.gmtime(x // 60))
 
 # Create a formatters.
 x_formatter = FuncFormatter(hours_minutes)
 y_formatter = FuncFormatter(megahashes)
 ax.xaxis.set_major_formatter(x_formatter)
 ax.yaxis.set_major_formatter(y_formatter)
+ax.locator_params(axis='x', nbins=10)
 # Give a little space to the left wall.
 fig.subplots_adjust(left = 0.16)
 
