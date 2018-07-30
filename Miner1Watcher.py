@@ -41,19 +41,11 @@ class Watcher:
         new_stats = [timestamp, result[2], result[6]]
         # Stretch 2 and 6 out into their own list items
         new_stats = self.stretch_stats(new_stats)
-        self.stats.append(new_stats)
-        #
-        # if not self.stats[0]:  # If stats does not have anything in it
-        #     self.stats[0] = new_stats
-        # elif self.stats[-1][0] != new_stats[0]:  # If new uptime is different
-        #     self.stats.append(new_stats)
-        # elif allow_dup_time:  # If non unique uptimes are allowed
-        #     self.stats.append(new_stats)
-        # else:
-        #     # In this case, stats is not empty, but the newest uptime is
-        #     # the same as the most recent one, and that is not allowed.
-        #     # print('Duplicate uptime stamp not allowed.')
-        #     pass
+
+        if not self.stats[0]:  # If stats does not have anything in it
+            self.stats[0] = new_stats
+        else:
+            self.stats.append(new_stats)
 
     def stretch_stats(self, stats_clumpy):
         '''Split and insert 2nd level list items into the parent lists.
