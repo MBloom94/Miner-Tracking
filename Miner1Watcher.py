@@ -1,7 +1,7 @@
 import socket
 import json
 import time
-import datetime
+from datetime import datetime
 
 
 class Watcher:
@@ -16,7 +16,7 @@ class Watcher:
 
     def __init__(self):
         # Create stats headers and stats lists, stats being 2d
-        self.stats_headers = ['uptime', 'hashrate', 'shares', 'rejects', 'temp', 'fans']
+        self.stats_headers = ['datetime', 'hashrate', 'shares', 'rejects', 'temp', 'fans']
         self.stats = [[]]
 
     def get_new_response(self):
@@ -30,28 +30,30 @@ class Watcher:
         s.close()
         return response
 
-    def get_new_stats(self, allow_dup_time = False):
+    def get_new_stats(self):
         '''Parse and return the 'result' from the response.'''
         response = self.get_new_response()
+        timestamp = datetime.now()
         # id = response['id']  Potentially use these in the future
         # error = response['error']  Potentially use these in the future
         result = response['result']  # list
         # Get the parts we care about from the result
-        new_stats = [result[1], result[2], result[6]]
+        new_stats = [timestamp, result[2], result[6]]
         # Stretch 2 and 6 out into their own list items
         new_stats = self.stretch_stats(new_stats)
-
-        if not self.stats[0]:  # If stats does not have anything in it
-            self.stats[0] = new_stats
-        elif self.stats[-1][0] != new_stats[0]:  # If new uptime is different
-            self.stats.append(new_stats)
-        elif allow_dup_time:  # If non unique uptimes are allowed
-            self.stats.append(new_stats)
-        else:
-            # In this case, stats is not empty, but the newest uptime is
-            # the same as the most recent one, and that is not allowed.
-            # print('Duplicate uptime stamp not allowed.')
-            pass
+        self.stats.append(new_stats)
+        #
+        # if not self.stats[0]:  # If stats does not have anything in it
+        #     self.stats[0] = new_stats
+        # elif self.stats[-1][0] != new_stats[0]:  # If new uptime is different
+        #     self.stats.append(new_stats)
+        # elif allow_dup_time:  # If non unique uptimes are allowed
+        #     self.stats.append(new_stats)
+        # else:
+        #     # In this case, stats is not empty, but the newest uptime is
+        #     # the same as the most recent one, and that is not allowed.
+        #     # print('Duplicate uptime stamp not allowed.')
+        #     pass
 
     def stretch_stats(self, stats_clumpy):
         '''Split and insert 2nd level list items into the parent lists.
@@ -68,9 +70,12 @@ class Watcher:
         # For each element in stats, using range(len(var)) to iterate...
         for ele in range(len(self.stats_clumpy)):
             # For each item split in the current element of stats...
-            for item in range(len(self.stats_clumpy[ele].split(';'))):
-                # Append the item split from an element of stats to list: newstats.
-                new_stats.append(self.stats_clumpy[ele].split(';')[item])
+            if isinstance(self.stats_clumpy[ele], str):
+                for item in range(len(self.stats_clumpy[ele].split(';'))):
+                    # Append the item split from an element of stats to list: newstats.
+                    new_stats.append(self.stats_clumpy[ele].split(';')[item])
+            else:
+                new_stats.append(self.stats_clumpy[ele])
         return new_stats
 
     def print_stats_pretty(self, last_line = None):
@@ -85,8 +90,7 @@ class Watcher:
         pretty_stats = '{}, {}.{} Mh/s, {} Shares, {} Rejected, {}C, {}%'
         # Print with formatting
         print(pretty_stats.format(
-            # Convert minutes to a timedelta and remove seconds ([:-3]).
-            str(datetime.timedelta(minutes = int(last_line[0])))[:-3],
+            datetime.time(last_line[0]),
             last_line[1][:-3],  # Tens and Ones place of Mh/s
             last_line[1][-3:],  # .000 places of Mh/s
             last_line[2],       # Total shares
@@ -121,7 +125,7 @@ if __name__ == '__main__':
         interval = 4.0  # Seconds
         while True:
             # Update stats list with current stats
-            watcher.get_new_stats(allow_dup_time = True)
+            watcher.get_new_stats()
             # Print stats with formatting
             watcher.print_stats_pretty()
             # Pause for the interval - the execution time since start_time
