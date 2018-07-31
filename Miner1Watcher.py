@@ -16,7 +16,9 @@ class Watcher:
 
     def __init__(self):
         # Create stats headers and stats lists, stats being 2d
-        self.stats_headers = ['datetime', 'hashrate', 'shares', 'rejects', 'temp', 'fans']
+        self.stats_headers = ['datetime', 'hashrate',
+                              'shares', 'rejects',
+                              'temp', 'fans']
         self.stats = []
 
     def get_new_response(self):
@@ -60,13 +62,13 @@ class Watcher:
             # For each item split in the current element of stats...
             if isinstance(self.stats_clumpy[ele], str):
                 for item in range(len(self.stats_clumpy[ele].split(';'))):
-                    # Append the item split from an element of stats to list: newstats.
+                    # Append the item split from an ele of stats to newstats.
                     new_stats.append(self.stats_clumpy[ele].split(';')[item])
             else:
                 new_stats.append(self.stats_clumpy[ele])
         return new_stats
 
-    def print_stats_pretty(self, last_line = None):
+    def print_stats_pretty(self, last_line=None):
         '''Print the last line of stats with additional formatting.'''
 
         # Assign last_line the last item in stats.
@@ -104,6 +106,7 @@ class Watcher:
         for stat in self.stats:
             hash_rate_list.append(int(stat[1]))
         return hash_rate_list
+
 
 # Main Loop, runs until the user hits Ctrl-C to throw KeyboardInterrupt
 if __name__ == '__main__':

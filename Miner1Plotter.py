@@ -27,9 +27,11 @@ fig.canvas.set_window_title('Miner1Hashrate')
 ax.grid(True)
 fig.autofmt_xdate()
 
+
 def megahashes(x, pos):
     '''Provide formatting for the y axis tickers.'''
     return '{0:.0f} Mh/s'.format(x/1000)
+
 
 # Create formatters.
 ax.format_xdata = dates.DateFormatter('%H:%M:%S')
@@ -51,9 +53,7 @@ def animate(i):
     # Update the stats list.
     watcher.get_new_stats()
     watcher.print_stats_pretty()
-    # x = list(dates.date2num(watcher.timestamp))  # ['timestamp'] e.g. ['']
-    x = watcher.timestamp  # ['timestamp'] e.g. [datetime.datetime(
-                           #     2018, 7, 31, 17, 12, 27, 542521)]
+    x = watcher.timestamp  # ['timestamp'] e.g. [datetime.datetime()]
     y = watcher.hash_rate  # ['kilohashes'] e.g. ['25000']
     line.set_data(x, y)
     # x axis ends at the most recent timestamp,
@@ -64,7 +64,8 @@ def animate(i):
     ax.set_xlim(x[-1] - datetime.timedelta(minutes=data_interval_s), x[-1])
     return line,
 
+
 # Animate with the animator function
-anim = animation.FuncAnimation(fig, animate, frames = None,
-                               init_func = init, interval = data_interval_ms)
+anim = animation.FuncAnimation(fig, animate, frames=None, init_func=init,
+                               interval=data_interval_ms)
 plt.show()
