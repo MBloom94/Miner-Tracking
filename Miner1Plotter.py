@@ -7,6 +7,10 @@ import datetime
 import Miner1Watcher
 
 
+# Set data interval. How often new stats are collected and animated.
+data_interval_ms = 1000  # milliseconds. Should always be a multiple of 1000.
+data_interval_s = data_interval_ms//1000  # seconds
+
 # Set up figure, axis and plot element.
 fig = plt.figure()
 ax = plt.axes()
@@ -52,11 +56,15 @@ def animate(i):
                            #     2018, 7, 31, 17, 12, 27, 542521)]
     y = watcher.hash_rate  # ['kilohashes'] e.g. ['25000']
     line.set_data(x, y)
-    # Set the x axis range to the previous uptime -> current uptime.
-    ax.set_xlim([x[0], x[-1]])
+    # x axis ends at the most recent timestamp,
+    # and starts 60*interval before that.
+    # e.g. if the interval is 1 second, the range will be 1 minute.
+    #      if the interval is 4 seconds, the range will be 4 minutes.
+    #      if the interval is 60 seconds, the range will be 60 minutes.
+    ax.set_xlim(x[-1] - datetime.timedelta(minutes=data_interval_s), x[-1])
     return line,
 
 # Animate with the animator function
 anim = animation.FuncAnimation(fig, animate, frames = None,
-                               init_func = init, interval = 1000)
+                               init_func = init, interval = data_interval_ms)
 plt.show()
