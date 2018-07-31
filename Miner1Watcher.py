@@ -17,7 +17,7 @@ class Watcher:
     def __init__(self):
         # Create stats headers and stats lists, stats being 2d
         self.stats_headers = ['datetime', 'hashrate', 'shares', 'rejects', 'temp', 'fans']
-        self.stats = [[]]
+        self.stats = []
 
     def get_new_response(self):
         '''Open a socket stream, send a request, and return the response.'''
@@ -41,11 +41,7 @@ class Watcher:
         new_stats = [timestamp, result[2], result[6]]
         # Stretch 2 and 6 out into their own list items
         new_stats = self.stretch_stats(new_stats)
-
-        if not self.stats[0]:  # If stats does not have anything in it
-            self.stats[0] = new_stats
-        else:
-            self.stats.append(new_stats)
+        self.stats.append(new_stats)
 
     def stretch_stats(self, stats_clumpy):
         '''Split and insert 2nd level list items into the parent lists.

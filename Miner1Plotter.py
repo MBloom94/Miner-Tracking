@@ -1,7 +1,6 @@
 from matplotlib import pyplot as plt
 from matplotlib import animation
 from matplotlib import dates
-# from matplotlib.ticker import FuncFormatter
 from matplotlib import ticker
 import time
 import datetime
