@@ -30,7 +30,7 @@ class Watcher:
     and it would raise an error that the socket was in use. To resolve this,
     I import retrying and use the retry decorator, with a function to
     let it retry after an OSError. # TODO: specify it as WinError 10048'''
-    @retry(stop_max_attempt_number=5, wait_fixed=100,
+    @retry(wait_fixed=100,
            retry_on_exception=retry_on_oserror)
     def get_new_response(self):
         '''Open a socket stream, send a request, and return the response.'''
@@ -41,6 +41,7 @@ class Watcher:
         response = s.recv(1024)  # Recieve response
         response = json.loads(response)  # Convert bytes to dict
         s.close()
+        # raise OSError; for testing purposes
         return response
 
     def get_new_stats(self):
