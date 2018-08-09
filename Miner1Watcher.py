@@ -8,6 +8,8 @@ from retrying import retry
 class Watcher:
     '''Watches Miner and collects stats'''
 
+    host = '192.168.1.66'
+    port = 3333
     # Create json request to send
     request = {'id': 0,
                'jsonrpc': '2.0',
@@ -36,7 +38,7 @@ class Watcher:
         '''Open a socket stream, send a request, and return the response.'''
         # Create a socket stream
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect(('192.168.1.66', 3333))
+        s.connect((self.host, self.port))
         s.sendall(Watcher.request)  # Send request
         response = s.recv(1024)  # Recieve response
         response = json.loads(response)  # Convert bytes to dict
