@@ -9,11 +9,14 @@ Miner Tracker's purpose is to show statistics, from one or more miners (using Cl
 Goals include:
 
 Current statistics in a command line format.
+
     # Miner1Watcher.py works, but i have yet to move network settings to a config file or make it very pretty.
     
 Current statistics in an animated graph format
+
     # Miner1Plotter.py shows live Mh/s every 1s and shows a minute of uptime. Plan to make those command line variables or config files.
     
 Past statistics from open-able log text files
+
     # Currently building new Miner1Stats.py Stats obj to progress and make a better Miner1Reader.py, will rebuild Watcher and Plotter
     # with Stats()
