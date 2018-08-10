@@ -51,8 +51,9 @@ class Watcher:
     def get_new_stat(self):
         '''Parse and return the 'result' from the response.'''
         response = self.get_new_response()
-        timestamp = datetime.now()  # TODO: Get datetime timestamp
-                                    #       - exe time... maybe half?
+        timestamp = datetime.now()
+        # TODO: Get datetime timestamp
+        #     - exe time... maybe half?
         # id = response['id']  Potentially use these in the future
         # error = response['error']  Potentially use these in the future
         result = response['result']  # list
@@ -104,7 +105,7 @@ class Watcher:
         # Print with formatting
         print(pretty_stats.format(
             # datetime.time(last_line[0]),
-            last_line[0].strftime('%H:%M:%S'), 
+            last_line[0].strftime('%H:%M:%S'),
             last_line[1][:-3],  # Tens and Ones place of Mh/s
             last_line[1][-3:],  # .000 places of Mh/s
             last_line[2],       # Total shares

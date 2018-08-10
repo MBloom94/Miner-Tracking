@@ -37,7 +37,8 @@ class Stats():
                 self.stats.append(new_stat)
             # print('New stat added:')
             # print('--> {}'.format(new_stat))
-            return True  # Add testing if the stat was actually added correctly.
+            return True
+            # Add testing if the stat was actually added correctly.
 
     def format_csv(self, unf_stat, add_timestamp=False):
         '''Take a string line and return it split it by ','.'''
@@ -47,7 +48,7 @@ class Stats():
         return f_stat
 
     def format_claymore_log(self, unf_stat):
-        '''Take an unformatted line from a Claymore log and return its items.'''
+        '''Take unformatted line from a Claymore log and return its items.'''
 
         '''Example unf_stat:
         07:03:53:554	3654	Check and remove old log files...
@@ -94,7 +95,8 @@ if __name__ == '__main__':
     stats = Stats()
     stats.add_stat('testing,this,function', type='csv')
     print(stats.stats_list)
-    stats.add_stat('testing,this,function,again', type='csv', add_timestamp=True)
+    stats.add_stat('testing,this,function,again',
+                   type='csv', add_timestamp=True)
     print(stats.stats_list)
     stats.add_stat('07:03:53:554	3654	Check and remove old log files...')
     print(stats.stats_list)

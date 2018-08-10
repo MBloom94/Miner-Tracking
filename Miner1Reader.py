@@ -12,10 +12,9 @@ class Reader():
         self.f = open(self.file_name, 'r')
         self.line = ''  # Get temp 'line' string ready for use.
 
+
 # If Miner1Reader.py is run individually...
 if __name__ == '__main__':
     reader = Reader()
-
-
 
     reader.f.close()
