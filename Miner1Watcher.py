@@ -3,6 +3,7 @@ import json
 import time
 from datetime import datetime
 from retrying import retry
+import Miner1Stats as Stats
 
 
 class Watcher:
@@ -18,11 +19,13 @@ class Watcher:
     request = bytes(request, 'utf-8')  # converts str to bytes-object
 
     def __init__(self):
-        # Create stats headers and stats lists, stats being 2d
+        '''Create stats headers and a Stats.stats_list.'''
+        self.stats = Stats.Stats()
+        # TODO: make stats_headers part of Stats
         self.stats_headers = ['datetime', 'hashrate',
                               'shares', 'rejects',
                               'temp', 'fans']
-        self.stats = []
+        # self.stats = []
 
     def retry_on_oserror(exc):
         '''Return true if the exception is an OSError.'''
@@ -39,7 +42,7 @@ class Watcher:
         # Create a socket stream
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
         s.connect((self.host, self.port))
-        s.sendall(Watcher.request)  # Send request
+        s.sendall(Watcher.request)  # Send request bytes object
         response = s.recv(1024)  # Recieve response
         response = json.loads(response)  # Convert bytes to dict
         s.close()
@@ -58,7 +61,8 @@ class Watcher:
         new_stats = [timestamp, result[2], result[6]]
         # Stretch 2 and 6 out into their own list items
         new_stats = self.stretch_stats(new_stats)
-        self.stats.append(new_stats)
+        # new_stats == ['2670', '26406', '1038', '0', '59', '38'] for example.
+        self.stats.stats_list.append(new_stats)
 
     def stretch_stats(self, stats_clumpy):
         '''Split and insert 2nd level list items into the parent lists.
@@ -74,7 +78,7 @@ class Watcher:
         new_stats = []
         # For each element in stats, using range(len(var)) to iterate...
         for ele in range(len(self.stats_clumpy)):
-            # For each item split in the current element of stats...
+            # For each item split in the current element of stats.stats_list...
             if isinstance(self.stats_clumpy[ele], str):
                 for item in range(len(self.stats_clumpy[ele].split(';'))):
                     # Append the item split from an ele of stats to newstats.
@@ -86,10 +90,10 @@ class Watcher:
     def print_stats_pretty(self, last_line=None):
         '''Print the last line of stats with additional formatting.'''
 
-        # Assign last_line the last item in stats.
+        # Assign last_line the last item in stats_list.
         # last_line = self.stats[-1]
         if last_line is None:
-            last_line = self.stats[-1]
+            last_line = self.stats.stats_list[-1]
 
         # Assign pretty_stats a shell to be formatted
         pretty_stats = '{}, {}.{} Mh/s, {} Shares, {} Rejected, {}C, {}%'
@@ -109,7 +113,7 @@ class Watcher:
         '''Get current uptime list.'''
 
         timestamp_list = []
-        for stat in self.stats:
+        for stat in self.stats.stats_list:
             timestamp_list.append(stat[0])
         return timestamp_list
 
@@ -118,7 +122,7 @@ class Watcher:
         '''Get current hash rate list'''
 
         hash_rate_list = []
-        for stat in self.stats:
+        for stat in self.stats.stats_list:
             hash_rate_list.append(int(stat[1]))
         return hash_rate_list
 
