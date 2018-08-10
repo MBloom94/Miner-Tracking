@@ -35,6 +35,8 @@ class Stats():
                     new_stat, type, add_timestamp))
             else:
                 self.stats.append(new_stat)
+            # print('New stat added:')
+            # print('--> {}'.format(new_stat))
             return True  # Add testing if the stat was actually added correctly.
 
     def format_csv(self, unf_stat, add_timestamp=False):
