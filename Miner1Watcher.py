@@ -25,7 +25,6 @@ class Watcher:
         self.stats_headers = ['datetime', 'hashrate',
                               'shares', 'rejects',
                               'temp', 'fans']
-        # self.stats = []
 
     def retry_on_oserror(exc):
         '''Return true if the exception is an OSError.'''
@@ -49,7 +48,7 @@ class Watcher:
         # raise OSError; for testing purposes
         return response
 
-    def get_new_stats(self):
+    def get_new_stat(self):
         '''Parse and return the 'result' from the response.'''
         response = self.get_new_response()
         timestamp = datetime.now()  # TODO: Get datetime timestamp
@@ -58,11 +57,14 @@ class Watcher:
         # error = response['error']  Potentially use these in the future
         result = response['result']  # list
         # Get the parts we care about from the result
-        new_stats = [timestamp, result[2], result[6]]
+        new_stat = [timestamp, result[2], result[6]]
         # Stretch 2 and 6 out into their own list items
-        new_stats = self.stretch_stats(new_stats)
-        # new_stats == ['2670', '26406', '1038', '0', '59', '38'] for example.
-        self.stats.stats_list.append(new_stats)
+        new_stat = self.stretch_stats(new_stat)
+        # new_stat == ['2670', '26406', '1038', '0', '59', '38'] for example.
+        # print('Got_new_stat:')
+        # print('--> {}'.format(new_stat))
+        # self.stats.stats_list.append(new_stat)
+        self.stats.add_stat(new_stat, format=False)
 
     def stretch_stats(self, stats_clumpy):
         '''Split and insert 2nd level list items into the parent lists.
@@ -74,21 +76,23 @@ class Watcher:
         to a new list and return it. New list will look like:
         ['2670', '26406', '1038', '0', '59', '38'].
         '''
-        self.stats_clumpy = stats_clumpy
-        new_stats = []
+        new_stat = []
         # For each element in stats, using range(len(var)) to iterate...
-        for ele in range(len(self.stats_clumpy)):
+        for ele in range(len(stats_clumpy)):
             # For each item split in the current element of stats.stats_list...
-            if isinstance(self.stats_clumpy[ele], str):
-                for item in range(len(self.stats_clumpy[ele].split(';'))):
+            if isinstance(stats_clumpy[ele], str):
+                for item in range(len(stats_clumpy[ele].split(';'))):
                     # Append the item split from an ele of stats to newstats.
-                    new_stats.append(self.stats_clumpy[ele].split(';')[item])
+                    new_stat.append(stats_clumpy[ele].split(';')[item])
             else:
-                new_stats.append(self.stats_clumpy[ele])
-        return new_stats
+                new_stat.append(stats_clumpy[ele])
+        return new_stat
 
     def print_stats_pretty(self, last_line=None):
         '''Print the last line of stats with additional formatting.'''
+
+        # print('Raw stats:')
+        # print(self.stats.stats_list)
 
         # Assign last_line the last item in stats_list.
         # last_line = self.stats[-1]
@@ -99,7 +103,8 @@ class Watcher:
         pretty_stats = '{}, {}.{} Mh/s, {} Shares, {} Rejected, {}C, {}%'
         # Print with formatting
         print(pretty_stats.format(
-            datetime.time(last_line[0]),
+            # datetime.time(last_line[0]),
+            last_line[0].strftime('%H:%M:%S'), 
             last_line[1][:-3],  # Tens and Ones place of Mh/s
             last_line[1][-3:],  # .000 places of Mh/s
             last_line[2],       # Total shares
@@ -135,7 +140,7 @@ if __name__ == '__main__':
         interval = 4.0  # Seconds
         while True:
             # Update stats list with current stats
-            watcher.get_new_stats()
+            watcher.get_new_stat()
             # Print stats with formatting
             watcher.print_stats_pretty()
             # Pause for the interval - the execution time since start_time

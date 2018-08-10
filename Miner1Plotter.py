@@ -51,7 +51,7 @@ def init():
 def animate(i):
     '''Function to drive the animation to be run each interval.'''
     # Update the stats list.
-    watcher.get_new_stats()
+    watcher.get_new_stat()
     watcher.print_stats_pretty()
     x = watcher.timestamp  # ['timestamp'] e.g. [datetime.datetime()]
     y = watcher.hash_rate  # ['kilohashes'] e.g. ['25000']
