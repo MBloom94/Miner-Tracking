@@ -4,7 +4,8 @@ import Miner1Watcher as Watcher
 
 class Reader():
     '''Read, parse, and save a log from Claymore's Miner.'''
-    default_file_name = 'sample logs/1533940877_log.txt'
+    # default_file_name = 'sample logs/1533940877_log.txt'
+    default_file_name = 'sample logs/1533156394_log.txt'
 
     def __init__(self, file_name=None):
         '''Initialize Reader, prep file for reading.'''
@@ -24,7 +25,8 @@ class Reader():
                     self.stats.add_stat(f_line)
                     # print(f_line, end='')
 
-        print(self.stats.hash_rates)
+        for hr in self.stats.hash_rates:
+            print('{} - {}'.format(hr[0], hr[1]))
 
     # def print_hash_rate(self):
     #     Watcher.print_stats_pretty(self.stats.hash_rates)

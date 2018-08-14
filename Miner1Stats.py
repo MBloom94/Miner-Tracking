@@ -63,11 +63,20 @@ class Stats():
 
         '''Example unf_stat:
         07:03:53:554	3654	Check and remove old log files...
+                     ^^      ^^
         The spaces  here &  here are \t s.
         '''
         f_stat = []
-        f_stat = unf_stat.split('\t')
-        f_stat[2] = f_stat[2].rstrip('\n')
+        # Try formatting
+        try:
+            # unf_stat should have 'data\tdata\tdata'
+            f_stat = unf_stat.split('\t')
+            # stat[2] should have log data and end in a newline
+            f_stat[2] = f_stat[2].rstrip('\n')
+        except IndexError as err:
+            print('Abnormal unf_stat. Raised {}'.format(err))
+            print(f_stat)
+            return None
 
         '''Here, the unformatted Claymore log line is split in 3.
         f_stat[0] is the timestamp (currently string form...)
@@ -75,8 +84,7 @@ class Stats():
         f_stat[2] is the message written to the log.
         '''
         if 'ETH - Total Speed:' in f_stat[2]:
-            print('{} {}'.format(f_stat[0], f_stat[2]))
-            self.hash_rate_list.append(f_stat[2])
+            self.hash_rate_list.append([f_stat[0], f_stat[2]])
         # We want other formatters to be able to return a value to append
         # to self.stats, so this function will return None so that stats does
         # not get extra empty data.
