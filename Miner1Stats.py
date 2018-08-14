@@ -3,24 +3,36 @@ from datetime import datetime
 
 class Stats():
     '''Stats object to hold list of stats from Miner1's logs.'''
-    default_stat_type = 'Claymore log'
 
-    def __init__(self):
+    def __init__(self, type=None):
+        '''Initialize generic and specific stats lists.'''
+        self.type = type  # e.g. 'Claymore log'
+        # Stats is used by Watcher, since all stats share a timestamp.
         self.stats = []
+        # Reader however, has different stats at different timestamps.
+        # Thus, it makes more sense to put specific stats in their own list
+        # instead of mashing everything into a generic stats list.
+        self.timestamp_list = []
+        self.hash_rate_list = []
 
     @property
     def stats_list(self):
         return self.stats
 
+    @property
+    def hash_rates(self):
+        '''Get current hash rate list [[timestamp, hash_rate],
+            [timestamp, hash_rate], etc...]
+        '''
+        return self.hash_rate_list
+
     def add_stat(self, new_stat=None, format=True,
-                 type=None, add_timestamp=False):
+                 add_timestamp=False):
         '''Append a new stat to the list of stats.'''
 
-        '''Receive a string: new_stat, bool: format,
-        string: type of log, bool: add_timestamp.
+        '''Receive a string: new_stat, bool: format, bool: add_timestamp.
         A new stat should always be received. Format by
-        default is true. Type is either received or is
-        set to Stats class var default_stat_type.
+        default is true.
         Adding a timestamp is default false but is passed
         to the formatter either way.
         '''
@@ -28,16 +40,15 @@ class Stats():
             print('No new stat given, none added.')
             return False  # Allow testing if stat was added or not.
         else:
-            if type is None:
-                type = self.default_stat_type
             if format:
-                self.stats.append(self.format_stat(
-                    new_stat, type, add_timestamp))
+                n = self.format_stat(new_stat, add_timestamp)
+                if n is not None:
+                    self.stats.append(n)
             else:
                 self.stats.append(new_stat)
             # print('New stat added:')
             # print('--> {}'.format(new_stat))
-            return True
+            # return True
             # Add testing if the stat was actually added correctly.
 
     def format_csv(self, unf_stat, add_timestamp=False):
@@ -47,43 +58,50 @@ class Stats():
             f_stat.insert(0, datetime.now())
         return f_stat
 
-    def format_claymore_log(self, unf_stat):
+    def format_claymore_log(self, unf_stat, add_timestamp=None):
         '''Take unformatted line from a Claymore log and return its items.'''
 
         '''Example unf_stat:
         07:03:53:554	3654	Check and remove old log files...
+        The spaces  here &  here are \t s.
         '''
         f_stat = []
-        f_stat.append(unf_stat[:12])  # 07:03:53:554
-        f_stat.append(unf_stat[13:17])  # 3654
-        f_stat.append(unf_stat[18:])  # Check and... -> end of string
+        f_stat = unf_stat.split('\t')
+        f_stat[2] = f_stat[2].rstrip('\n')
 
         '''Here, the unformatted Claymore log line is split in 3.
         f_stat[0] is the timestamp (currently string form...)
         f_stat[1] is something... not sure yet. Messaged Claymore.
         f_stat[2] is the message written to the log.
         '''
-        return f_stat
+        if 'ETH - Total Speed:' in f_stat[2]:
+            print('{} {}'.format(f_stat[0], f_stat[2]))
+            self.hash_rate_list.append(f_stat[2])
+        # We want other formatters to be able to return a value to append
+        # to self.stats, so this function will return None so that stats does
+        # not get extra empty data.
+        return None
 
-    def format_stat(self, unf_stat, type=None, add_timestamp=False):
+    def format_stat(self, unf_stat, add_timestamp=False):
         '''Take an unformatted string and return a list of parsed items.'''
 
         '''Make a dict of functions to be executed depending on
-        the type received. Then, return its result.
+        the type of stats. Then, return its result.
 
         This allows for different formatters to be used based on
-        the given stat type. Makes it easier to add other log types
+        the set stat type. Makes it easier to add other log types
         in the future, maybe from other miners than Claymore.
         CSV is included for testing purposes.
         '''
-        if type is None:
-            type = self.default_stat_type
+        if self.type is None:
+            print('Stats created with no type. Stat not formatted.')
+            return unf_stat
 
         stat_types = {
             'Claymore log': self.format_claymore_log,
             'csv': self.format_csv
         }
-        formatter = stat_types.get(type, lambda: 'Invalid type')
+        formatter = stat_types.get(self.type, lambda: 'Invalid type')
         if add_timestamp:
             return formatter(unf_stat, add_timestamp=True)
         else:
@@ -92,11 +110,11 @@ class Stats():
 
 # If Miner1Stats.py is run individually...
 if __name__ == '__main__':
-    stats = Stats()
-    stats.add_stat('testing,this,function', type='csv')
-    print(stats.stats_list)
-    stats.add_stat('testing,this,function,again',
-                   type='csv', add_timestamp=True)
-    print(stats.stats_list)
-    stats.add_stat('07:03:53:554	3654	Check and remove old log files...')
-    print(stats.stats_list)
+    csv_stats = Stats('csv')
+    csv_stats.add_stat('testing,this,function')
+    print(csv_stats.stats_list)
+    csv_stats.add_stat('testing,this,function,again', add_timestamp=True)
+    print(csv_stats.stats_list)
+    clay_stats = Stats('Claymore log')
+    clay_stats.add_stat('07:03:53:554	3654	Check and remove old log files...')
+    print(clay_stats.stats_list)
