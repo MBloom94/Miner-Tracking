@@ -8,7 +8,8 @@ import Miner1Watcher
 
 
 # Set data interval. How often new stats are collected and animated.
-data_interval_ms = 1000  # milliseconds. Should always be a multiple of 1000.
+data_interval_ms = 1000*60  # 60 second interval. Attempting hour long graph...
+# data_interval_ms = 1000  # milliseconds. Should always be a multiple of 1000.
 data_interval_s = data_interval_ms//1000  # seconds
 
 # Set up figure, axis and plot element.
