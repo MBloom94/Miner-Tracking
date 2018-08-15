@@ -31,7 +31,7 @@ fig.autofmt_xdate()
 
 def megahashes(x, pos):
     '''Provide formatting for the y axis tickers.'''
-    return '{0:.0f} Mh/s'.format(x/1000)
+    return '{0:.0f} Mh/s'.format(x/1000)  # e.g. 26 Mh/s
 
 
 # Create formatters.
@@ -43,7 +43,7 @@ ax.yaxis.set_major_formatter(ticker.FuncFormatter(megahashes))
 
 # Initialize; plot background of each frame
 def init():
-    '''Initializes the line.'''
+    '''Initializes the line for FuncAnimation.'''
     line.set_data([], [])
     return line,
 
