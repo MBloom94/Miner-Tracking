@@ -8,7 +8,7 @@ import Miner1Watcher
 
 
 # Set data interval. How often new stats are collected and animated.
-data_interval_ms = 1000*8  # 8 second interval. 
+data_interval_ms = 1000*8  # 8 second interval.
 # data_interval_ms = 1000  # milliseconds. Should always be a multiple of 1000.
 data_interval_s = data_interval_ms//1000  # seconds
 
@@ -42,10 +42,12 @@ ax.yaxis.set_major_formatter(ticker.FuncFormatter(megahashes))
 
 
 # Initialize; plot background of each frame
-def init():
-    '''Initializes the line for FuncAnimation.'''
-    line.set_data([], [])
-    return line,
+# def init():
+#     '''Initializes the line for FuncAnimation.'''
+#     line.set_data([], [])
+#     return line,
+#
+# Only necessary when using blit
 
 
 # Animate; called sequentially
@@ -67,6 +69,6 @@ def animate(i):
 
 
 # Animate with the animator function
-anim = animation.FuncAnimation(fig, animate, frames=None, init_func=init,
+anim = animation.FuncAnimation(fig, animate, frames=None,
                                interval=data_interval_ms)
 plt.show()
