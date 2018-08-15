@@ -89,9 +89,6 @@ class Stats():
             speed = eth_stats[0]
             mhs = speed[-11:-5]
             self.hash_rate_list.append([f_stat[0], mhs])
-
-            # self.hash_rate_list.append([f_stat[0], f_stat[2]])
-            # TODO: append number of total shares (in f_stat[2] to shares list)
             # Total shares as of timestamp
             unf_tshares = eth_stats[1]
             tshares = ''.join(filter(str.isdigit, unf_tshares))  # only digits
