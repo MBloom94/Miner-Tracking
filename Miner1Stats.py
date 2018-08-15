@@ -12,8 +12,8 @@ class Stats():
         # Reader however, has different stats at different timestamps.
         # Thus, it makes more sense to put specific stats in their own list
         # instead of mashing everything into a generic stats list.
-        self.timestamp_list = []
-        self.hash_rate_list = []
+        self.hash_rate_list = []  # [Timestamp, ##.###] (Mh/s)
+        self.tshares_list = []  # Total shares as of timestamp.
 
     @property
     def stats_list(self):
@@ -84,7 +84,20 @@ class Stats():
         f_stat[2] is the message written to the log.
         '''
         if 'ETH - Total Speed:' in f_stat[2]:
-            self.hash_rate_list.append([f_stat[0], f_stat[2]])
+            eth_stats = f_stat[2].split(',')
+            # Mh/s
+            speed = eth_stats[0]
+            mhs = speed[-11:-5]
+            self.hash_rate_list.append([f_stat[0], mhs])
+
+            # self.hash_rate_list.append([f_stat[0], f_stat[2]])
+            # TODO: append number of total shares (in f_stat[2] to shares list)
+            # Total shares as of timestamp
+            unf_tshares = eth_stats[1]
+            tshares = ''.join(filter(str.isdigit, unf_tshares))  # only digits
+            total_shares = int(tshares)
+            self.tshares_list.append([f_stat[0], total_shares])
+
         # We want other formatters to be able to return a value to append
         # to self.stats, so this function will return None so that stats does
         # not get extra empty data.

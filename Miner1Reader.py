@@ -28,6 +28,9 @@ class Reader():
         for hr in self.stats.hash_rates:
             print('{} - {}'.format(hr[0], hr[1]))
 
+        for ts in self.stats.tshares_list:
+            print('{} Shares as of {}'.format(ts[1], ts[0]))
+
     # def print_hash_rate(self):
     #     Watcher.print_stats_pretty(self.stats.hash_rates)
 
