@@ -35,3 +35,35 @@ class Plotter():
         x_formatter = dates.DateFormatter('%H:%M:%S')
         self.ax_1.xaxis.set_major_formatter(x_formatter)
         self.ax_1.yaxis.set_major_formatter(ticker.FuncFormatter(megahashes))
+
+    def plot_live(self):
+        '''Plot live data from Watcher.'''
+
+        # Define animation function
+        def animate(i):
+            '''Function to drive the animation to be run each interval.'''
+            # Update the stats list.
+            x = []
+            y = []
+            # TODO: get live data somehow.
+            data = [[]]
+            for i in range(len(data)):
+                x.append(data[i][0])
+                y.append(data[i][1])
+            line.set_data(x, y)
+            # x axis ends at the most recent timestamp,
+            # and starts 60*interval before that.
+            self.ax_1.set_xlim(x[-1]
+                - datetime.timedelta(minutes=self.data_interval_s), x[-1])
+            return line,
+
+        # Assign the animator
+        anim = animation.FuncAnimation(self.fig, animate, frames=None,
+            interval=self.data_interval_ms)
+
+        # Show the live plot.
+        plt.show()
+
+
+if __name__ == '__main__':
+    plotter = Plotter()
