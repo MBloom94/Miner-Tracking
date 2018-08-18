@@ -12,8 +12,9 @@ class Stats():
         # Reader however, has different stats at different timestamps.
         # Thus, it makes more sense to put specific stats in their own list
         # instead of mashing everything into a generic stats list.
-        self.hash_rate_list = []  # [Timestamp, ##.###] (Mh/s)
+        self.hash_rates_list = []  # [Timestamp, ##.###] (Mh/s)
         self.tshares_list = []  # Total shares as of timestamp.
+        self.last_job_date = ''  # Most recent date from New job
 
     @property
     def stats_list(self):
@@ -24,7 +25,7 @@ class Stats():
         '''Get current hash rate list [[timestamp, hash_rate],
             [timestamp, hash_rate], etc...]
         '''
-        return self.hash_rate_list
+        return self.hash_rates_list
 
     @property
     def tshares(self):
@@ -67,13 +68,13 @@ class Stats():
         # Example unf_stat:
         # datetime, Kh/s, total shares, rejects, temp, fans %
         # ['datetime obj', '26406', '1038', '0', '59', '38']
-        self.hash_rate_list.append([unf_stat[0], int(unf_stat[1])])
+        self.hash_rates_list.append([unf_stat[0], int(unf_stat[1])])
         self.tshares_list.append([unf_stat[0], int(unf_stat[2])])
         # Returning original stat so that stats.stats_list also has data.
         return unf_stat
 
     def format_claymore_log(self, unf_stat, add_timestamp=None):
-        '''Take unformatted line from a Claymore log and return its items.'''
+        '''Take unformatted line from a Claymore log and save its items.'''
 
         '''Example unf_stat:
         07:03:53:554	3654	Check and remove old log files...
@@ -81,7 +82,7 @@ class Stats():
         The spaces  here &  here are \t s.
         '''
         f_stat = []
-        # Try formatting
+        # Try splitting on tabs and assigning to f_stat
         try:
             # unf_stat should have 'data\tdata\tdata'
             f_stat = unf_stat.split('\t')
@@ -93,24 +94,44 @@ class Stats():
             return None
 
         '''Here, the unformatted Claymore log line is split in 3.
-        f_stat[0] is the timestamp (currently string form...)
+        f_stat[0] is the timestamp, string, H:M:S:f
         f_stat[1] is something... not sure yet. Messaged Claymore.
         f_stat[2] is the message written to the log.
         '''
-        # Convert str to datetime. e.g. 16:46:34:398
-        f_stat[0] = datetime.strptime(f_stat[0], '%H:%M:%S:%f')
 
+        # Save most recent date from New job
+        if 'New job from' in f_stat[2]:
+            # ETH: 08/05/18-21:39:14 - New job from us1.ethermine.org:4444
+            # or...
+            # DevFee: ETH: 08/05/18-21:56:43 - New job from...
+            # Get just the MM/DD/YY from string.
+            new_date = f_stat[2]
+            if 'DevFee: ETH: ' in new_date:
+                new_date = new_date[13:21]
+            else:
+                new_date = new_date[5:13]
+            # If new_date is different than last_job_date, overwrite it
+            if new_date != self.last_job_date:
+                self.last_job_date = new_date
+
+        # Split stats and add them to their lists.
         if 'ETH - Total Speed:' in f_stat[2]:
+            # ETH - Total Speed: 26.570 Mh/s, Total Shares: 11, ...
+            # Add most recent date and current timestamp
+            time_w_date = self.last_job_date + ' ' + f_stat[0]
+            # Convert str to datetime. e.g. 16:46:34:398
+            timestamp = datetime.strptime(time_w_date, '%m/%d/%y %H:%M:%S:%f')
+
             eth_stats = f_stat[2].split(',')
             # Mh/s
             speed = eth_stats[0]
             mhs = float(speed[-11:-5])
-            self.hash_rate_list.append([f_stat[0], mhs])
+            self.hash_rates_list.append([timestamp, mhs])
             # Total shares as of timestamp
             unf_tshares = eth_stats[1]
             tshares = ''.join(filter(str.isdigit, unf_tshares))  # only digits
             total_shares = int(tshares)
-            self.tshares_list.append([f_stat[0], total_shares])
+            self.tshares_list.append([timestamp, total_shares])
 
         # We want other formatters to be able to return a value to append
         # to self.stats, so this function will return None so that stats does
