@@ -12,7 +12,7 @@ class Plotter():
 
     def __init__(self):
         '''Initialize plot artifacts.'''
-        self.data_interval_ms = 1000*1  # 10 second interval.
+        self.data_interval_ms = 1000*10  # 10 second interval.
         self.data_interval_s = self.data_interval_ms//1000  # seconds
 
         self.fig, self.ax_1 = plt.subplots()
@@ -84,12 +84,10 @@ class Plotter():
         x_formatter = dates.DateFormatter('%H:%M:%S')
         self.ax_1.xaxis.set_major_formatter(x_formatter)
         self.ax_1.yaxis.set_major_formatter(ticker.FuncFormatter(megahashes))
+        self.ax_1.yaxis.set_major_locator(ticker.AutoLocator())
 
         plt.xlim(x[0], x[-1])
         plt.ylim(0.000, 40.000)
-        # self.ax_1.set_ylim(0.000, 40.000)
-        # plt.yticks(np.arange(0, 40, 10))
-        self.ax_1.yaxis.set_major_locator(ticker.AutoLocator())
 
         plt.show()
 
@@ -97,12 +95,9 @@ class Plotter():
         '''Take a list of [timestamp, stat], split it to x, y and return it.'''
         x = []
         y = []
-
         for h in range(len(stats_list)):
             x.append(stats_list[h][0])
             y.append(stats_list[h][1])
-        print(x)
-        print(y)
         return x, y
 
 
