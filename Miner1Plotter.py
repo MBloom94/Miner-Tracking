@@ -69,6 +69,10 @@ class Plotter():
     def plot_static(self, stats_source):
         '''Plot log data from Reader object.'''
 
+        stats_source.read_log()
+        x, y = self.set_x_y(stats_source.hash_rates)
+        plt.plot_date(x, y, 'b-')
+
         # Specific Styling
         def megahashes(x, pos):
             '''Provide formatting for the y axis tickers.'''
@@ -77,17 +81,14 @@ class Plotter():
         # Create formatters.
         x_formatter = dates.DateFormatter('%H:%M:%S')
         self.ax_1.xaxis.set_major_formatter(x_formatter)
-        # self.ax_1.yaxis.set_major_formatter(ticker.FuncFormatter(megahashes))
-
-
-        stats_source.read_log()
-        x, y = self.set_x_y(stats_source.hash_rates)
+        self.ax_1.yaxis.set_major_formatter(ticker.FuncFormatter(megahashes))
 
         plt.xlim(x[0], x[-1])
-        plt.ylim((0.000, 40.000))
-        # plt.yticks(np.arange(0, 40, 5.0))
+        plt.ylim(0.000, 40.000)
+        # self.ax_1.set_ylim(0.000, 40.000)
+        # plt.yticks(np.arange(0, 40, 10))
+        self.ax_1.yaxis.set_major_locator(ticker.AutoLocator())
 
-        plt.plot_date(x, y, 'b-')
         plt.show()
 
     def set_x_y(self, stats_list):

@@ -68,7 +68,7 @@ class Stats():
         # datetime, Kh/s, total shares, rejects, temp, fans %
         # ['datetime obj', '26406', '1038', '0', '59', '38']
         self.hash_rate_list.append([unf_stat[0], int(unf_stat[1])])
-        self.tshares_list.append([unf_stat[0], unf_stat[2]])
+        self.tshares_list.append([unf_stat[0], int(unf_stat[2])])
         # Returning original stat so that stats.stats_list also has data.
         return unf_stat
 
@@ -104,7 +104,7 @@ class Stats():
             eth_stats = f_stat[2].split(',')
             # Mh/s
             speed = eth_stats[0]
-            mhs = speed[-11:-5]
+            mhs = float(speed[-11:-5])
             self.hash_rate_list.append([f_stat[0], mhs])
             # Total shares as of timestamp
             unf_tshares = eth_stats[1]
