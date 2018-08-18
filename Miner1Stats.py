@@ -83,6 +83,9 @@ class Stats():
         f_stat[1] is something... not sure yet. Messaged Claymore.
         f_stat[2] is the message written to the log.
         '''
+        # Convert str to datetime. e.g. 16:46:34:398
+        f_stat[0] = datetime.strptime(f_stat[0], '%H:%M:%S:%f')
+
         if 'ETH - Total Speed:' in f_stat[2]:
             eth_stats = f_stat[2].split(',')
             # Mh/s
@@ -128,11 +131,8 @@ class Stats():
 
 # If Miner1Stats.py is run individually...
 if __name__ == '__main__':
-    csv_stats = Stats('csv')
-    csv_stats.add_stat('testing,this,function')
-    print(csv_stats.stats_list)
-    csv_stats.add_stat('testing,this,function,again', add_timestamp=True)
-    print(csv_stats.stats_list)
     clay_stats = Stats('Claymore log')
-    clay_stats.add_stat('07:03:53:554	3654	Check and remove old log files...')
-    print(clay_stats.stats_list)
+    clay_stats.add_stat('16:46:49:750	285c	'
+        + 'ETH - Total Speed: 26.302 Mh/s, '
+        + 'Total Shares: 0, Rejected: 0, Time: 00:00')
+    print(clay_stats.hash_rates)
