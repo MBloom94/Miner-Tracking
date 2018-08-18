@@ -1,5 +1,4 @@
 import Miner1Stats as Stats
-import Miner1Watcher as Watcher
 
 
 class Reader():
