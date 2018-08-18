@@ -148,6 +148,6 @@ class Stats():
 if __name__ == '__main__':
     clay_stats = Stats('Claymore log')
     clay_stats.add_stat('16:46:49:750	285c	'
-        + 'ETH - Total Speed: 26.302 Mh/s, '
-        + 'Total Shares: 0, Rejected: 0, Time: 00:00')
+                        + 'ETH - Total Speed: 26.302 Mh/s, '
+                        + 'Total Shares: 0, Rejected: 0, Time: 00:00')
     print(clay_stats.hash_rates)

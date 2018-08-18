@@ -43,6 +43,7 @@ class Reader():
     def tshares(self):
         return self.stats.tshares
 
+
 # If Miner1Reader.py is run individually...
 if __name__ == '__main__':
     reader = Reader()

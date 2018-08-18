@@ -148,6 +148,7 @@ class Watcher:
     def tshares(self):
         return self.stats.tshares
 
+
 # Main Loop, runs until the user hits Ctrl-C to throw KeyboardInterrupt
 if __name__ == '__main__':
     try:

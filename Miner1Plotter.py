@@ -29,7 +29,7 @@ class Plotter():
         # Specific Styling
         # Set the y axis range from 0 to 40,000 kH/s
         self.ax_1.set_ylim([0, 40000])
-        # self.ax_1.set_ylim([0, 30000])
+
         def megahashes(x, pos):
             '''Provide formatting for the y axis tickers.'''
             return '{0:.0f} Mh/s'.format(x/1000)  # e.g. 26 Mh/s
@@ -55,12 +55,14 @@ class Plotter():
             self.line.set_data(x, y)
             # x axis ends at the most recent timestamp,
             # and starts 60*interval before that.
-            self.ax_1.set_xlim(x[-1]
-                - datetime.timedelta(minutes=self.data_interval_s), x[-1])
+            self.ax_1.set_xlim(
+                x[-1] - datetime.timedelta(minutes=self.data_interval_s),
+                x[-1])
             return self.line,
 
         # Assign the animator
-        anim = animation.FuncAnimation(self.fig, animate, frames=None,
+        anim = animation.FuncAnimation(
+            self.fig, animate, frames=None,
             interval=self.data_interval_ms)
 
         # Show the live plot.
