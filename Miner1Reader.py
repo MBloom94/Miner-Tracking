@@ -15,6 +15,8 @@ class Reader():
             self.file_name = file_name
         # Create stats object for Claymore log files.
         self.stats = Stats.Stats(type='Claymore log')
+
+    def read_log(self):
         # Open file to read, for each line add it to stats.
         # add_stat will format it as a Claymore log and add data
         # to a hash rates list.
@@ -25,17 +27,26 @@ class Reader():
                     self.stats.add_stat(f_line)
                     # print(f_line, end='')
 
+    def print_hash_rates(self):
         for hr in self.stats.hash_rates:
             print('{} - {}'.format(hr[0], hr[1]))
 
+    def print_total_shares(self):
         for ts in self.stats.tshares_list:
             print('{} Shares as of {}'.format(ts[1], ts[0]))
 
-    # def print_hash_rate(self):
-    #     Watcher.print_stats_pretty(self.stats.hash_rates)
+    @property
+    def hash_rates(self):
+        return self.stats.hash_rates
 
+    @property
+    def tshares(self):
+        return self.stats.tshares
 
 # If Miner1Reader.py is run individually...
 if __name__ == '__main__':
     reader = Reader()
+    reader.read_log()
+    reader.print_hash_rates()
+    reader.print_total_shares()
     # reader.print_hash_rate()
