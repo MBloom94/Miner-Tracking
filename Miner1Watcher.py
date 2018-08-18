@@ -20,7 +20,7 @@ class Watcher:
 
     def __init__(self):
         '''Create stats headers and a Stats.stats_list.'''
-        self.stats = Stats.Stats()
+        self.stats = Stats.Stats('Claymore json')
         # TODO: make stats_headers part of Stats
         self.stats_headers = ['datetime', 'hashrate',
                               'shares', 'rejects',
@@ -65,7 +65,7 @@ class Watcher:
         # print('Got_new_stat:')
         # print('--> {}'.format(new_stat))
         # self.stats.stats_list.append(new_stat)
-        self.stats.add_stat(new_stat, format=False)
+        self.stats.add_stat(new_stat)
 
     def stretch_stats(self, stats_clumpy):
         '''Split and insert 2nd level list items into the parent lists.
@@ -114,9 +114,15 @@ class Watcher:
             last_line[5]        # Fan speed %
         ))
 
+    def update_stats(self):
+        '''Update stats lists with get_new_stat for plotter.'''
+        self.get_new_stat()
+
     @property
     def timestamp(self):
         '''Get current uptime list.'''
+        # Still used by Plotter_main.
+        # TODO: delete this property in favor of new ones.
 
         timestamp_list = []
         for stat in self.stats.stats_list:
@@ -126,12 +132,21 @@ class Watcher:
     @property
     def hash_rate(self):
         '''Get current hash rate list'''
+        # Still used by Plotter_main.
+        # TODO: delete this property in favor of new ones.
 
         hash_rate_list = []
         for stat in self.stats.stats_list:
             hash_rate_list.append(int(stat[1]))
         return hash_rate_list
 
+    @property
+    def hash_rates(self):
+        return self.stats.hash_rates
+
+    @property
+    def tshares(self):
+        return self.stats.tshares
 
 # Main Loop, runs until the user hits Ctrl-C to throw KeyboardInterrupt
 if __name__ == '__main__':
