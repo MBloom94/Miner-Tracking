@@ -11,18 +11,18 @@ class Plotter():
 
     def __init__(self):
         '''Initialize plot artifacts.'''
-        self.data_interval_ms = 1000*8  # 8 second interval.
-        self.data_interval_s = data_interval_ms//1000  # seconds
+        self.data_interval_ms = 1000*10  # 10 second interval.
+        self.data_interval_s = self.data_interval_ms//1000  # seconds
 
         self.fig = plt.figure()  # Create a figure to plot onto.
         self.ax_1 = plt.axes()  # Assign an axis.
-        self.line, = ax_1.plot_date([], [], 'b-')  # 'b-' for line graph
+        self.line, = self.ax_1.plot_date([], [], 'b-')  # 'b-' for line graph
 
         # Styling
         # Set the y axis range from 0 to 40,000 kH/s
-        # ax.set_ylim([0, 40000])
-        self.ax_1.set_ylim([0, 30000])
-        self.fig.canvas.set_window_title('Miner1Hashrate')
+        self.ax_1.set_ylim([0, 40000])
+        # self.ax_1.set_ylim([0, 30000])
+        self.fig.canvas.set_window_title('Miner1 Stats')
         self.ax_1.grid(True)
         self.fig.autofmt_xdate()
 
@@ -36,8 +36,8 @@ class Plotter():
         self.ax_1.xaxis.set_major_formatter(x_formatter)
         self.ax_1.yaxis.set_major_formatter(ticker.FuncFormatter(megahashes))
 
-    def plot_live(self):
-        '''Plot live data from Watcher.'''
+    def plot_live(self, stats_source):
+        '''Plot live data from Watcher object.'''
 
         # Define animation function
         def animate(i):
@@ -45,17 +45,22 @@ class Plotter():
             # Update the stats list.
             x = []
             y = []
-            # TODO: get live data somehow.
-            data = [[]]
-            for i in range(len(data)):
-                x.append(data[i][0])
-                y.append(data[i][1])
-            line.set_data(x, y)
+            # Watcher get new data
+            stats_source.update_stats()
+            # Print new data to console
+            print('{} {} Mh/s'.format(
+                stats_source.hash_rates[-1][0].strftime('%H:%M:%S'),
+                stats_source.hash_rates[-1][1]/1000))
+            # For each hash rate in hashrates, append to x and y
+            for h in range(len(stats_source.hash_rates)):
+                x.append(stats_source.hash_rates[h][0])
+                y.append(stats_source.hash_rates[h][1])
+            self.line.set_data(x, y)
             # x axis ends at the most recent timestamp,
             # and starts 60*interval before that.
             self.ax_1.set_xlim(x[-1]
                 - datetime.timedelta(minutes=self.data_interval_s), x[-1])
-            return line,
+            return self.line,
 
         # Assign the animator
         anim = animation.FuncAnimation(self.fig, animate, frames=None,
@@ -66,4 +71,4 @@ class Plotter():
 
 
 if __name__ == '__main__':
-    plotter = Plotter()
+    pass
