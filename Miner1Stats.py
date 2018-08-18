@@ -26,6 +26,10 @@ class Stats():
         '''
         return self.hash_rate_list
 
+    @property
+    def tshares(self):
+        return self.tshares_list
+
     def add_stat(self, new_stat=None, format=True,
                  add_timestamp=False):
         '''Append a new stat to the list of stats.'''
@@ -57,6 +61,16 @@ class Stats():
         if add_timestamp:
             f_stat.insert(0, datetime.now())
         return f_stat
+
+    def format_claymore_json(self, unf_stat, add_timestamp=False):
+        '''Take a list of claymore stats and assign them to stats.'''
+        # Example unf_stat:
+        # datetime, Kh/s, total shares, rejects, temp, fans %
+        # ['datetime obj', '26406', '1038', '0', '59', '38']
+        self.hash_rate_list.append([unf_stat[0], int(unf_stat[1])])
+        self.tshares_list.append([unf_stat[0], unf_stat[2]])
+        # Returning original stat so that stats.stats_list also has data.
+        return unf_stat
 
     def format_claymore_log(self, unf_stat, add_timestamp=None):
         '''Take unformatted line from a Claymore log and return its items.'''
@@ -120,6 +134,7 @@ class Stats():
 
         stat_types = {
             'Claymore log': self.format_claymore_log,
+            'Claymore json': self.format_claymore_json,
             'csv': self.format_csv
         }
         formatter = stat_types.get(self.type, lambda: 'Invalid type')
