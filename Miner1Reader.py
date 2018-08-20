@@ -54,4 +54,3 @@ if __name__ == '__main__':
     reader.read_log()
     reader.print_hash_rates()
     reader.print_total_shares()
-    # reader.print_hash_rate()

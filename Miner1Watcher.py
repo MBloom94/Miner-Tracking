@@ -119,28 +119,6 @@ class Watcher:
         self.get_new_stat()
 
     @property
-    def timestamp(self):
-        '''Get current uptime list.'''
-        # Still used by Plotter_main.
-        # TODO: delete this property in favor of new ones.
-
-        timestamp_list = []
-        for stat in self.stats.stats_list:
-            timestamp_list.append(stat[0])
-        return timestamp_list
-
-    @property
-    def hash_rate(self):
-        '''Get current hash rate list'''
-        # Still used by Plotter_main.
-        # TODO: delete this property in favor of new ones.
-
-        hash_rate_list = []
-        for stat in self.stats.stats_list:
-            hash_rate_list.append(int(stat[1]))
-        return hash_rate_list
-
-    @property
     def hash_rates(self):
         return self.stats.hash_rates
 
