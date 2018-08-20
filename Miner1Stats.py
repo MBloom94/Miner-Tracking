@@ -1,8 +1,11 @@
 from datetime import datetime
+import logging
 
 
 class Stats():
     '''Stats object to hold list of stats from Miner1's logs.'''
+
+    logging.basicConfig(filename='Miner1Log.log', level=logging.DEBUG)
 
     def __init__(self, type=None):
         '''Initialize generic and specific stats lists.'''
@@ -91,8 +94,8 @@ class Stats():
             # stat[2] should have log data and end in a newline
             f_stat[2] = f_stat[2].rstrip('\n')
         except IndexError as err:
-            print('Abnormal unf_stat. Raised {}'.format(err))
-            print(f_stat)
+            logging.warning('Abnormal unf_stat. Raised {}'.format(err))
+            logging.warning('--> {}'.format(f_stat))
             return None
 
         '''Here, the unformatted Claymore log line is split in 3.
@@ -101,7 +104,7 @@ class Stats():
         f_stat[2] is the message written to the log.
         '''
 
-        # Save most recent date from New job
+        # Save most recent date from New job for datetimestamps
         if 'New job from' in f_stat[2]:
             # ETH: 08/05/18-21:39:14 - New job from us1.ethermine.org:4444
             # or...
@@ -129,12 +132,18 @@ class Stats():
             speed = eth_stats[0]
             # mhs = float(speed[-11:-5])
             mhs = int(float(speed[-11:-5]) * 1000)
-            self.hash_rates_list.append([timestamp, mhs])
+            # If this timestamp is not already there...
+            # Necessary because we are rereading logs when animating plot_live
+            # TODO: Somehow skip reading over the whole log to get to the
+            # new stats at the end.
+            if [timestamp, mhs] not in self.hash_rates_list:
+                self.hash_rates_list.append([timestamp, mhs])
             # Total shares as of timestamp
             unf_tshares = eth_stats[1]
             tshares = ''.join(filter(str.isdigit, unf_tshares))  # only digits
             total_shares = int(tshares)
-            self.tshares_list.append([timestamp, total_shares])
+            if [timestamp, total_shares] not in self.tshares_list:
+                self.tshares_list.append([timestamp, total_shares])
 
         # We want other formatters to be able to return a value to append
         # to self.stats, so this function will return None so that stats does

@@ -25,6 +25,7 @@ class Reader():
                 if f_line.strip():
                     self.stats.add_stat(f_line)
                     # print(f_line, end='')
+            f.close()
 
     def update_stats(self):
         '''Update current stats with read_log.'''
