@@ -26,6 +26,10 @@ class Reader():
                     self.stats.add_stat(f_line)
                     # print(f_line, end='')
 
+    def update_stats(self):
+        '''Update current stats with read_log.'''
+        self.read_log()
+
     def print_hash_rates(self):
         for hr in self.stats.hash_rates:
             print('{} - {}'.format(hr[0], hr[1]))

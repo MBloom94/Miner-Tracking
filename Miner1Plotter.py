@@ -78,7 +78,7 @@ class Plotter():
         # Specific Styling
         def megahashes(x, pos):
             '''Provide formatting for the y axis tickers.'''
-            return '{0:.0f} Mh/s'.format(x)  # e.g. 26 Mh/s
+            return '{0:.0f} Mh/s'.format(x/1000)  # e.g. 26 Mh/s
 
         # Create formatters.
         x_formatter = dates.DateFormatter('%H:%M:%S')
@@ -87,7 +87,7 @@ class Plotter():
         self.ax_1.yaxis.set_major_locator(ticker.AutoLocator())
 
         plt.xlim(x[0], x[-1])
-        plt.ylim(0.000, 40.000)
+        plt.ylim(0, 40000)
 
         plt.show()
 
