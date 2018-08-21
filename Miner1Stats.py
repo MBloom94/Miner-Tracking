@@ -15,9 +15,10 @@ class Stats():
         # Reader however, has different stats at different timestamps.
         # Thus, it makes more sense to put specific stats in their own list
         # instead of mashing everything into a generic stats list.
-        self.hash_rates_list = []  # [Timestamp, ##.###] (Mh/s)
+        self.hash_rates_list = []  # [Timestamp, #####] (Kh/s)
         self.tshares_list = []  # Total shares as of timestamp.
         self.last_job_date = ''  # Most recent date from New job
+        self.ehr_list = []  # Effective hash rate, [Timestamp, #####] (Kh/s)
 
     @property
     def stats_list(self):
@@ -37,6 +38,8 @@ class Stats():
     def add_stat(self, new_stat=None, format=True,
                  add_timestamp=False):
         '''Append a new stat to the list of stats.'''
+        # TODO: Somehow skip reading over the whole log to get to the
+        # new stats at the end.
 
         '''Receive a string: new_stat, bool: format, bool: add_timestamp.
         A new stat should always be received. Format by
@@ -121,24 +124,21 @@ class Stats():
 
         # Split stats and add them to their lists.
         if 'ETH - Total Speed:' in f_stat[2]:
-            # ETH - Total Speed: 26.570 Mh/s, Total Shares: 11, ...
             # Add most recent date and current timestamp
             time_w_date = self.last_job_date + ' ' + f_stat[0]
             # Convert str to datetime. e.g. 16:46:34:398
             timestamp = datetime.strptime(time_w_date, '%m/%d/%y %H:%M:%S:%f')
 
+            # ETH - Total Speed: 26.570 Mh/s, Total Shares: 11, ...
             eth_stats = f_stat[2].split(',')
-            # Mh/s
-            speed = eth_stats[0]
-            # mhs = float(speed[-11:-5])
-            mhs = int(float(speed[-11:-5]) * 1000)
+            # Assign Kh/s
+            speed = eth_stats[0]  # '26.570'
+            khs = int(float(speed[-11:-5]) * 1000)  # 26570
             # If this timestamp is not already there...
             # Necessary because we are rereading logs when animating plot_live
-            # TODO: Somehow skip reading over the whole log to get to the
-            # new stats at the end.
-            if [timestamp, mhs] not in self.hash_rates_list:
-                self.hash_rates_list.append([timestamp, mhs])
-            # Total shares as of timestamp
+            if [timestamp, khs] not in self.hash_rates_list:
+                self.hash_rates_list.append([timestamp, khs])
+            # Assign total shares as of timestamp
             unf_tshares = eth_stats[1]
             tshares = ''.join(filter(str.isdigit, unf_tshares))  # only digits
             total_shares = int(tshares)
@@ -149,6 +149,12 @@ class Stats():
             except IndexError as err:
                 if len(self.tshares_list) == 0:
                     self.tshares_list.append([timestamp, total_shares])
+
+            # Calculate num shares in last hour.
+            # Calculate effective hash rate.
+            # ehr = diff*shares_last_hour/3600
+            # Append new ehr stats
+            # self.ehr_list.append([timestamp, ehr])
 
         # We want other formatters to be able to return a value to append
         # to self.stats, so this function will return None so that stats does
