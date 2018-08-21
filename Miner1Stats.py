@@ -142,8 +142,13 @@ class Stats():
             unf_tshares = eth_stats[1]
             tshares = ''.join(filter(str.isdigit, unf_tshares))  # only digits
             total_shares = int(tshares)
-            if [timestamp, total_shares] not in self.tshares_list:
-                self.tshares_list.append([timestamp, total_shares])
+            try:
+                # If total shares greater than the last entry...
+                if total_shares > self.tshares_list[-1][1]:
+                    self.tshares_list.append([timestamp, total_shares])
+            except IndexError as err:
+                if len(self.tshares_list) == 0:
+                    self.tshares_list.append([timestamp, total_shares])
 
         # We want other formatters to be able to return a value to append
         # to self.stats, so this function will return None so that stats does
