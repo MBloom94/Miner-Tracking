@@ -19,6 +19,7 @@ class Reader():
         # Open file to read, for each line add it to stats.
         # add_stat will format it as a Claymore log and add data
         # to a hash rates list.
+        print('Reading file: {}'.format(self.file_name.split('/')[-1]))
         with open(self.file_name, 'r') as f:
             for f_line in f:
                 f_line = f.readline()
@@ -46,6 +47,10 @@ class Reader():
     @property
     def tshares(self):
         return self.stats.tshares
+
+    @property
+    def ehrs(self):
+        return self.stats.ehrs
 
 
 # If Miner1Reader.py is run individually...

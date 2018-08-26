@@ -10,9 +10,13 @@ import numpy as np
 class Plotter():
     '''Plot Claymore live or log data.'''
 
-    def __init__(self):
+    def __init__(self, interval=None):
         '''Initialize plot artifacts.'''
-        self.data_interval_ms = 1000*10  # 10 second interval.
+
+        if interval is None:
+            self.data_interval_ms = 1000*60  # Default interval
+        else:
+            self.data_interval_ms = 1000*interval  # Param: interval
         self.data_interval_s = self.data_interval_ms//1000  # seconds
 
         self.fig, self.ax_1 = plt.subplots()
@@ -47,9 +51,10 @@ class Plotter():
             # Watcher get new data
             stats_source.update_stats()
             # Print new data to console
-            print('{} {} Mh/s'.format(
+            print('{} {} Mh/s, {} Eff Mh/s'.format(
                 stats_source.hash_rates[-1][0].strftime('%H:%M:%S'),
-                stats_source.hash_rates[-1][1]/1000))
+                stats_source.hash_rates[-1][1]/1000,
+                stats_source.ehrs[-1][1]))
             # For each hash rate in hashrates, append to x and y
             x, y = self.set_x_y(stats_source.hash_rates)
             self.line.set_data(x, y)
