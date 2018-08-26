@@ -126,6 +126,10 @@ class Watcher:
     def tshares(self):
         return self.stats.tshares
 
+    @property
+    def ehrs(self):
+        return self.stats.ehrs
+
 
 # Main Loop, runs until the user hits Ctrl-C to throw KeyboardInterrupt
 if __name__ == '__main__':

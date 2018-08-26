@@ -12,5 +12,5 @@ reader = Miner1Reader.Reader(f)
 plotter = Miner1Plotter.Plotter(inter)
 
 # plotter.plot_live(watcher)
-plotter.plot_static(reader)
-# plotter.plot_live(reader)
+# plotter.plot_static(reader)
+plotter.plot_live(reader)

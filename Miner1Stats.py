@@ -83,8 +83,11 @@ class Stats():
         # ['datetime obj', '26406', '1038', '0', '59', '38']
         hash_rates = int(unf_stat[1])
         tshares = int(unf_stat[2])
+        rejects = int(unf_stat[3])
+
         self.hash_rates_list.append([unf_stat[0], hash_rates])
         self.tshares_list.append([unf_stat[0], tshares])
+        self.rejects_list.append([unf_stat[0], rejects])
         # Returning original stat so that stats.stats_list also has data.
         return unf_stat
 

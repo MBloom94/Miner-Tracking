@@ -19,7 +19,8 @@ class Plotter():
             self.data_interval_ms = 1000*interval  # Param: interval
         self.data_interval_s = self.data_interval_ms//1000  # seconds
 
-        self.fig, self.ax_1 = plt.subplots()
+        self.fig = plt.figure()
+        self.ax_1 = plt.axes()
         self.line, = self.ax_1.plot_date([], [], 'b-')  # 'b-' for line graph
 
         # Styling
@@ -29,6 +30,10 @@ class Plotter():
 
     def plot_live(self, stats_source):
         '''Plot live data from Watcher object.'''
+
+
+        self.lines = [self.ax_1.plot_date([], [], 'b-', color='green')[0],
+                      self.ax_1.plot_date([], [], 'b-', color='blue')[0]]
 
         # Specific Styling
         # Set the y axis range from 0 to 40,000 kH/s
@@ -47,23 +52,32 @@ class Plotter():
         # Define animation function
         def animate(i):
             '''Function to drive the animation to be run each interval.'''
-
-            # Watcher get new data
             stats_source.update_stats()
             # Print new data to console
             print('{} {} Mh/s, {} Eff Mh/s'.format(
                 stats_source.hash_rates[-1][0].strftime('%H:%M:%S'),
                 stats_source.hash_rates[-1][1]/1000,
-                stats_source.ehrs[-1][1]))
+                stats_source.ehrs[-1][1]/1000))
+
             # For each hash rate in hashrates, append to x and y
-            x, y = self.set_x_y(stats_source.hash_rates)
-            self.line.set_data(x, y)
+            x1, y1 = self.set_x_y(stats_source.hash_rates)
+            x2, y2 = self.set_x_y(stats_source.ehrs)
+
+            xlist = [x1, x2]
+            ylist = [y1, y2]
+
+            for lnum, line in enumerate(self.lines):
+                line.set_data(xlist[lnum], ylist[lnum])
+
+            # Set line data
+            # self.line.set_data(x, y)
+
             # x axis ends at the most recent timestamp,
             # and starts 60*interval before that.
             self.ax_1.set_xlim(
-                x[-1] - datetime.timedelta(minutes=self.data_interval_s),
-                x[-1])
-            return self.line,
+                x1[-1] - datetime.timedelta(minutes=self.data_interval_s),
+                x1[-1])
+            return self.lines,
 
         # Assign the animator
         anim = animation.FuncAnimation(
