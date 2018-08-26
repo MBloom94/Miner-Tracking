@@ -215,7 +215,7 @@ class Stats():
                 # Get number of shares in last hour
                 shares = shares_last_hour()
                 # Calculate effective hash rate.
-                ehr = self.diff * shares / 3600
+                ehr = round(self.diff * shares / 3600) * 1000
                 # Append new ehr stats
                 self.ehr_list.append([timestamp, ehr])
             # Else if current stat time is 10 min newer than most recent ehr
@@ -224,7 +224,7 @@ class Stats():
                 # Get number of shares in last hour
                 shares = shares_last_hour()
                 # Calculate effective hash rate.
-                ehr = round(self.diff * shares / 3600, 3)
+                ehr = round(self.diff * shares / 3600, 3) * 1000
                 # Append new ehr stats
                 if [timestamp, ehr] not in self.ehr_list:
                     self.ehr_list.append([timestamp, ehr])

@@ -78,7 +78,10 @@ class Plotter():
 
         stats_source.read_log()
         x, y = self.set_x_y(stats_source.hash_rates)
-        plt.plot_date(x, y, 'b-')
+        plt.plot_date(x, y, 'b-', color='green')
+
+        x2, y2 = self.set_x_y(stats_source.ehrs)
+        plt.plot_date(x2, y2, 'b-', color='blue')
 
         # Specific Styling
         def megahashes(x, pos):
