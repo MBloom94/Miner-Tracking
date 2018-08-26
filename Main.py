@@ -1,3 +1,4 @@
+import sys
 import Miner1Stats
 import Miner1Reader
 import Miner1Watcher
@@ -11,6 +12,6 @@ watcher = Miner1Watcher.Watcher()
 reader = Miner1Reader.Reader(f)
 plotter = Miner1Plotter.Plotter(inter)
 
-# plotter.plot_live(watcher)
+plotter.plot_live(watcher)
 # plotter.plot_static(reader)
-plotter.plot_live(reader)
+# plotter.plot_live(reader)

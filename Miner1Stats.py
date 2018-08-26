@@ -21,7 +21,7 @@ class Stats():
         self.uptime = datetime.timedelta(minutes=0)  # Most recent uptime from stats
         self.last_job_date = ''  # Most recent date from New job
         self.ehr_list = []  # Effective hash rate, [Timestamp, #####] (Kh/s)
-        self.diff = None  # Int difficulty e.g. 4000
+        self.diff = 4000  # Int difficulty, in my Ethermine pool this is 4000
 
     @property
     def stats_list(self):
@@ -84,10 +84,21 @@ class Stats():
         hash_rates = int(unf_stat[1])
         tshares = int(unf_stat[2])
         rejects = int(unf_stat[3])
+        # If we have 1hr of stats info... because its necessary for ehr
+        if self.stats:  # ...is not empty
+            # If current timestamp - oldest timestamp is over an hour
+            delta = unf_stat[0] - self.stats[0][0]
+            if delta >= datetime.timedelta(minutes=60):
+                ehr = self.effective_hash_rate()
+            else:
+                ehr = 0
 
+        else:  # stats is empty
+            ehr = 0
         self.hash_rates_list.append([unf_stat[0], hash_rates])
         self.tshares_list.append([unf_stat[0], tshares])
         self.rejects_list.append([unf_stat[0], rejects])
+        self.ehr_list.append([unf_stat[0], ehr])
         # Returning original stat so that stats.stats_list also has data.
         return unf_stat
 
@@ -188,19 +199,6 @@ class Stats():
                                         minutes=int(uptime[1]))
             self.uptime = uptime
 
-        def shares_last_hour():
-            '''Calculate and return number of shares in the last hour.'''
-            result = None
-            cur_shares = self.tshares_list[-1]  # Newest [timestamp, int] share
-            # Find share with timestamp 1hr less than cur_shares timestamp
-            for share in self.tshares_list:
-                delta = cur_shares[0] - share[0]  # timedelta
-                # If in hour range from current
-                if delta <= datetime.timedelta(minutes=60):
-                    # Current total shares - shares as of 1hr ago
-                    result = cur_shares[1] - share[1]
-                    return result
-
         # Update ehr_list every 10 minutes
         # If uptime is an hour or more...
         # Because ehr can not be calculated with less than an hour of data.
@@ -216,18 +214,18 @@ class Stats():
             if not self.ehr_list:
                 # Calculate and add ehr
                 # Get number of shares in last hour
-                shares = shares_last_hour()
+                shares = self.shares_last_hour()
                 # Calculate effective hash rate.
-                ehr = round(self.diff * shares / 3600) * 1000
+                ehr = self.effective_hash_rate()
                 # Append new ehr stats
                 self.ehr_list.append([timestamp, ehr])
             # Else if current stat time is 10 min newer than most recent ehr
             elif timestamp - self.ehr_list[-1][0] >= ten_delta:
                 # Calculate and add ehr
                 # Get number of shares in last hour
-                shares = shares_last_hour()
+                shares = self.shares_last_hour()
                 # Calculate effective hash rate.
-                ehr = round(self.diff * shares / 3600, 3) * 1000
+                ehr = self.effective_hash_rate()
                 # Append new ehr stats
                 if [timestamp, ehr] not in self.ehr_list:
                     self.ehr_list.append([timestamp, ehr])
@@ -264,6 +262,25 @@ class Stats():
             return formatter(unf_stat, add_timestamp=True)
         else:
             return formatter(unf_stat)
+
+    def shares_last_hour(self):
+        '''Calculate and return number of shares in the last hour.'''
+        result = None
+        if not self.tshares_list:  # If tshares_list is empty
+            return result
+        cur_shares = self.tshares_list[-1]  # Newest [timestamp, int] share
+        # Find share with timestamp 1hr less than cur_shares timestamp
+        for share in self.tshares_list:
+            delta = cur_shares[0] - share[0]  # timedelta
+            # If in hour range from current
+            if delta <= datetime.timedelta(minutes=60):
+                # Current total shares - shares as of 1hr ago
+                result = cur_shares[1] - share[1]
+                return result
+
+    def effective_hash_rate(self):
+        '''Calculate and return current effective hash rate.'''
+        return round(self.diff * self.shares_last_hour() / 3600, 3) * 1000
 
 
 # If Miner1Stats.py is run individually...
