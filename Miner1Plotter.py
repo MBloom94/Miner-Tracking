@@ -103,8 +103,12 @@ class Plotter():
             return '{0:.0f} Mh/s'.format(x/1000)  # e.g. 26 Mh/s
 
         # Create formatters.
-        x_formatter = dates.DateFormatter('%H:%M:%S')
+        x_formatter = dates.DateFormatter('%a %d\n%H:%M:%S')
         self.ax_1.xaxis.set_major_formatter(x_formatter)
+        # TODO: Make this only format the tickers.
+        # Currently it also formats the bottom right bar position marker...
+        # I dont know what it is called to format yet.
+        # But, I think i can format just the tickers not the xaxis.
         self.ax_1.yaxis.set_major_formatter(ticker.FuncFormatter(megahashes))
         self.ax_1.yaxis.set_major_locator(ticker.AutoLocator())
 

@@ -3,11 +3,16 @@ import Miner1Stats as Stats
 
 class Reader():
     '''Read, parse, and save a log from Claymore's Miner.'''
-    # default_file_name = 'sample logs/1533940877_log.txt'
-    default_file_name = 'sample logs/1533156394_log.txt'
 
-    def __init__(self, file_name=None):
+    default_path = 'sample logs/'
+    default_file_name = '1533156394_log.txt'
+
+    def __init__(self, path=None, file_name=None):
         '''Initialize Reader, prep file for reading.'''
+        if path is None:
+            self.path = self.default_path
+        else:
+            self.path = path
         if file_name is None:
             self.file_name = self.default_file_name
         else:
@@ -20,7 +25,7 @@ class Reader():
         # add_stat will format it as a Claymore log and add data
         # to a hash rates list.
         print('Reading file: {}'.format(self.file_name.split('/')[-1]))
-        with open(self.file_name, 'r') as f:
+        with open(self.path + self.file_name, 'r') as f:
             for f_line in f:
                 f_line = f.readline()
                 if f_line.strip():
