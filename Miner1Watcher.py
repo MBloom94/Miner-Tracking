@@ -3,6 +3,7 @@ import json
 import time
 from datetime import datetime
 from retrying import retry
+import sys
 import Miner1Stats as Stats
 
 
@@ -40,13 +41,17 @@ class Watcher:
         '''Open a socket stream, send a request, and return the response.'''
         # Create a socket stream
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
-        s.connect((self.host, self.port))
-        s.sendall(Watcher.request)  # Send request bytes object
-        response = s.recv(1024)  # Recieve response
-        response = json.loads(response)  # Convert bytes to dict
-        s.close()
-        # raise OSError; for testing purposes
-        return response
+
+        # If Claymore is running
+        try:
+            s.connect((self.host, self.port))
+            s.sendall(Watcher.request)  # Send request bytes object
+            response = s.recv(1024)  # Recieve response
+            response = json.loads(response)  # Convert bytes to dict
+            s.close()
+            return response
+        except ConnectionRefusedError as exc:
+            sys.exit('Connection refused.\n    Check that Claymore is running.')
 
     def get_new_stat(self):
         '''Parse and return the 'result' from the response.'''

@@ -14,10 +14,11 @@ class Plotter():
         '''Initialize plot artifacts.'''
 
         if interval is None:
-            self.data_interval_ms = 1000*60  # Default interval
+            self.data_interval_s = 60  # Default interval
+            self.data_interval_ms = 1000 * self.data_interval_s
         else:
-            self.data_interval_ms = 1000*interval  # Param: interval
-        self.data_interval_s = self.data_interval_ms//1000  # seconds
+            self.data_interval_s = interval  # Seconds
+            self.data_interval_ms = 1000 * interval  # Param: interval
 
         self.fig = plt.figure()
         self.ax_1 = plt.axes()
@@ -27,6 +28,8 @@ class Plotter():
         self.fig.canvas.set_window_title('Miner1 Stats')
         self.ax_1.grid(True)
         self.fig.autofmt_xdate()
+        # Set the y axis range from 0 to 50,000 kH/s
+        self.ax_1.set_ylim([0, 50000])
 
     def plot_live(self, stats_source):
         '''Plot live data from Watcher object.'''
@@ -36,8 +39,6 @@ class Plotter():
                       self.ax_1.plot_date([], [], 'b-', color='blue')[0]]
 
         # Specific Styling
-        # Set the y axis range from 0 to 40,000 kH/s
-        self.ax_1.set_ylim([0, 50000])
 
         def megahashes(x, pos):
             '''Provide formatting for the y axis tickers.'''
@@ -113,7 +114,7 @@ class Plotter():
         self.ax_1.yaxis.set_major_locator(ticker.AutoLocator())
 
         plt.xlim(x[0], x[-1])
-        plt.ylim(0, 40000)
+        # plt.ylim(0, 40000)
 
         plt.show()
 
