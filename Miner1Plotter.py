@@ -37,7 +37,7 @@ class Plotter():
 
         # Specific Styling
         # Set the y axis range from 0 to 40,000 kH/s
-        self.ax_1.set_ylim([0, 40000])
+        self.ax_1.set_ylim([0, 50000])
 
         def megahashes(x, pos):
             '''Provide formatting for the y axis tickers.'''
