@@ -7,6 +7,8 @@ import Miner1Plotter
 parser = argparse.ArgumentParser()
 parser.add_argument('-l', '--live', help='Plot live data with defaults.',
                     action='store_true')
+parser.add_argument('-r', '--read_log', help='Read default log file first.',
+                    action='store_true')
 parser.add_argument('-p', '--path', help='Path to file\'s directory.')
 parser.add_argument('-f', '--file', help='File name. ')
 parser.add_argument('-i', '--interval', help='Seconds between stats.',
@@ -34,8 +36,9 @@ plotter = Miner1Plotter.Plotter(inter)
 
 # Plot Static or Live
 if args.live:
-    plotter.plot_live(watcher)
-    # TODO: Add option for using reader for live with history
-    # plotter.plot_live(reader)
+    if args.read_log:
+        plotter.plot_live(reader)
+    else:
+        plotter.plot_live(watcher)
 else:
     plotter.plot_static(reader)
