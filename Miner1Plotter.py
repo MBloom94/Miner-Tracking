@@ -34,7 +34,6 @@ class Plotter():
     def plot_live(self, stats_source):
         '''Plot live data from Watcher object.'''
 
-
         self.lines = [self.ax_1.plot_date([], [], 'b-', color='green')[0],
                       self.ax_1.plot_date([], [], 'b-', color='blue')[0]]
 
@@ -82,7 +81,7 @@ class Plotter():
             # animation tick. This is annoying when you are trying to explore
             # data and it jumps back to the live frame. Should be able to use
             # self.ax_1.get_xlim() and self.ax_1.get_ylim() to check location.
-            
+
             return self.lines,
 
         # Assign the animator

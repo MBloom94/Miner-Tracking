@@ -18,7 +18,8 @@ class Stats():
         self.hash_rates_list = []  # [Timestamp, #####] (Kh/s)
         self.tshares_list = []  # Total shares as of timestamp.
         self.rejects_list = []  # Rejected shares as of timestamp.
-        self.uptime = datetime.timedelta(minutes=0)  # Most recent uptime from stats
+        # Most recent uptime from stats
+        self.uptime = datetime.timedelta(minutes=0)
         self.last_job_date = ''  # Most recent date from New job
         self.ehr_list = []  # Effective hash rate, [Timestamp, #####] (Kh/s)
         self.diff = 4000  # Int difficulty, in my Ethermine pool this is 4000
@@ -157,7 +158,8 @@ class Stats():
             # Add most recent date and current timestamp
             time_w_date = self.last_job_date + ' ' + f_stat[0]
             # Convert str to datetime. e.g. 16:46:34:398
-            timestamp = datetime.datetime.strptime(time_w_date, '%m/%d/%y %H:%M:%S:%f')
+            timestamp = datetime.datetime.strptime(
+                time_w_date, '%m/%d/%y %H:%M:%S:%f')
 
             # ETH - Total Speed: 26.570 Mh/s, Total Shares: 11,
             # Rejected: 0, Time: 00:00
@@ -208,8 +210,8 @@ class Stats():
             # Create timestamp for ehr_list
             time_w_date = self.last_job_date + ' ' + f_stat[0]
             # Convert str to datetime. e.g. 16:46:34:398
-            timestamp = datetime.datetime.strptime(time_w_date,
-                                          '%m/%d/%y %H:%M:%S:%f')
+            timestamp = datetime.datetime.strptime(
+                time_w_date, '%m/%d/%y %H:%M:%S:%f')
             # If ehr_list is empty
             if not self.ehr_list:
                 # Calculate and add ehr
@@ -230,7 +232,6 @@ class Stats():
                 if [timestamp, ehr] not in self.ehr_list:
                     self.ehr_list.append([timestamp, ehr])
                 # TODO: Make this an if or.
-
 
         # We want other formatters to be able to return a value to append
         # to self.stats, so this function will return None so that stats does

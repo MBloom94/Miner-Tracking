@@ -51,7 +51,7 @@ class Watcher:
             s.close()
             return response
         except ConnectionRefusedError as exc:
-            sys.exit('Connection refused.\n    Check that Claymore is running.')
+            sys.exit('Connection refused.\n    Check if Claymore is running.')
 
     def get_new_stat(self):
         '''Parse and return the 'result' from the response.'''

@@ -8,17 +8,17 @@ import Miner1Plotter
 parser = argparse.ArgumentParser()
 parser.add_argument('-l', '--live',
                     help=("Plot live data. By default uses Watcher with "
-                        "default interval. Aditionally use -r / --read_log to "
-                        "use Reader."),
+                          "default interval. Aditionally use -r / --read_log "
+                          "to use Reader."),
                     action='store_true')
 parser.add_argument('-r', '--read_log',
                     help=("If --live is set, --read_log will cause Reader to "
-                        "be used instead of Watcher to plot log data and then "
-                        "continue plotting live data."),
+                          "be used instead of Watcher to plot log data and "
+                          "then continue plotting live data."),
                     action='store_true')
 parser.add_argument('-p', '--path', help='Path to file\'s directory.')
 parser.add_argument('-f', '--file', help='File name.')
-parser.add_argument('-i', '--interval', help='Interval in seconds between stats.',
+parser.add_argument('-i', '--interval', help='Stats interval in seconds.',
                     type=int)
 args = parser.parse_args()
 
