@@ -6,13 +6,19 @@ import Miner1Watcher
 import Miner1Plotter
 
 parser = argparse.ArgumentParser()
-parser.add_argument('-l', '--live', help='Plot live data with defaults.',
+parser.add_argument('-l', '--live',
+                    help=("Plot live data. By default uses Watcher with "
+                        "default interval. Aditionally use -r / --read_log to "
+                        "use Reader."),
                     action='store_true')
-parser.add_argument('-r', '--read_log', help='Read default log file first.',
+parser.add_argument('-r', '--read_log',
+                    help=("If --live is set, --read_log will cause Reader to "
+                        "be used instead of Watcher to plot log data and then "
+                        "continue plotting live data."),
                     action='store_true')
 parser.add_argument('-p', '--path', help='Path to file\'s directory.')
-parser.add_argument('-f', '--file', help='File name. ')
-parser.add_argument('-i', '--interval', help='Seconds between stats.',
+parser.add_argument('-f', '--file', help='File name.')
+parser.add_argument('-i', '--interval', help='Interval in seconds between stats.',
                     type=int)
 args = parser.parse_args()
 
@@ -44,9 +50,12 @@ reader = Miner1Reader.Reader(path, f)
 # Plot Static or Live
 if args.live:
     if args.read_log:
+        print('Plotting past and live stats with Reader.')
         plotter.plot_live(reader)
     else:
+        print('Plotting live stats with Watcher.')
         watcher = Miner1Watcher.Watcher()
         plotter.plot_live(watcher)
 else:
+    print('Plotting {} with Reader.'.format(f))
     plotter.plot_static(reader)

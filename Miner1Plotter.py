@@ -67,17 +67,22 @@ class Plotter():
             xlist = [x1, x2]
             ylist = [y1, y2]
 
+            # Set line data, will handle more axes
             for lnum, line in enumerate(self.lines):
                 line.set_data(xlist[lnum], ylist[lnum])
-
-            # Set line data
-            # self.line.set_data(x, y)
 
             # x axis ends at the most recent timestamp,
             # and starts 60*interval before that.
             self.ax_1.set_xlim(
                 x1[-1] - datetime.timedelta(minutes=self.data_interval_s),
                 x1[-1])
+            # TODO: Make this range start smaller, then get larger over time.
+            # Largest should be more like a 6hr range for visibility.
+            # TODO: Only update range if the range is the same as it was last
+            # animation tick. This is annoying when you are trying to explore
+            # data and it jumps back to the live frame. Should be able to use
+            # self.ax_1.get_xlim() and self.ax_1.get_ylim() to check location.
+            
             return self.lines,
 
         # Assign the animator
@@ -104,12 +109,8 @@ class Plotter():
             return '{0:.0f} Mh/s'.format(x/1000)  # e.g. 26 Mh/s
 
         # Create formatters.
-        x_formatter = dates.DateFormatter('%a %d\n%H:%M:%S')
+        x_formatter = dates.DateFormatter('%a %d %H:%M')  # Sun 02 10:00
         self.ax_1.xaxis.set_major_formatter(x_formatter)
-        # TODO: Make this only format the tickers.
-        # Currently it also formats the bottom right bar position marker...
-        # I dont know what it is called to format yet.
-        # But, I think i can format just the tickers not the xaxis.
         self.ax_1.yaxis.set_major_formatter(ticker.FuncFormatter(megahashes))
         self.ax_1.yaxis.set_major_locator(ticker.AutoLocator())
 
