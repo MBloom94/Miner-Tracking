@@ -25,15 +25,9 @@ class Reader():
         # add_stat will format it as a Claymore log and add data
         # to a hash rates list.
         print('Reading file: {}'.format(self.file_name))
-        # When running on OS X, the log's encoding became an issue.
-        # So, I'm explicitly setting the encoding here.
-        # Encoding was determined with Google Chrome dev console.
-        # Open .txt in Chrome, dev console type document.characterSet
-        # I'm pretty sure the os that Claymore is running on is what
-        # sets the log's encoding. My logs are "windows-1252" from my
-        # Windows 10 pc.
+        # Explicitly setting encoding to ISO-8859-1
         with open(self.path + self.file_name,
-                  encoding='windows-1252', mode='r') as f:
+                  encoding='ISO-8859-1', mode='r') as f:
             for f_line in f:
                 f_line = f.readline()
                 if f_line.strip():
