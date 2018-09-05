@@ -1,5 +1,6 @@
 import argparse
 import os
+import sys
 import Miner1Stats
 import Miner1Reader
 import Miner1Watcher
@@ -25,6 +26,8 @@ args = parser.parse_args()
 if args.path:
     path = args.path
 else:
+    # Default path to Claymore logs directory.
+    # TODO: Add reference to a config file, or find the log files somehow.
     path = ("C:/Claymore/Claymore Miner/"
             "Claymore's Dual Ethereum"
             "+Decred_Siacoin_Lbry_Pascal_Blake2s_Keccak "
@@ -35,9 +38,13 @@ if args.file:
 else:
     # Get most recent log in path.
     # Iterate files in order and the last one stays assigned to f
-    for file in os.listdir(path):
-        if file.endswith('_log.txt'):
-            f = file
+    try:
+        for file in os.listdir(path):
+            if file.endswith('_log.txt'):
+                f = file
+    except FileNotFoundError as exc:
+        print('File or direcory not found with path. Try using --path.')
+        sys.exit('Path attempted: \n    {}'.format(path))
 
 if args.interval:
     inter = args.interval
