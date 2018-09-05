@@ -57,8 +57,7 @@ class Watcher:
         '''Parse and return the 'result' from the response.'''
         response = self.get_new_response()
         timestamp = datetime.now()
-        # TODO: Get datetime timestamp
-        #     - exe time... maybe half?
+        # TODO: Get datetime timestamp - exe time... maybe half?
         # id = response['id']  Potentially use these in the future
         # error = response['error']  Potentially use these in the future
         result = response['result']  # list

@@ -12,16 +12,16 @@ class Stats():
         self.type = type  # e.g. 'Claymore log'
         # Stats is used by Watcher, since all stats share a timestamp.
         self.stats = []
-        # Reader however, has different stats at different timestamps.
+        # Reader adds different stats at different timestamps.
         # Thus, it makes more sense to put specific stats in their own list
         # instead of mashing everything into a generic stats list.
         self.hash_rates_list = []  # [Timestamp, #####] (Kh/s)
         self.tshares_list = []  # Total shares as of timestamp.
         self.rejects_list = []  # Rejected shares as of timestamp.
+        self.ehr_list = []  # Effective hash rate, [Timestamp, #####] (Kh/s)
         # Most recent uptime from stats
         self.uptime = datetime.timedelta(minutes=0)
         self.last_job_date = ''  # Most recent date from New job
-        self.ehr_list = []  # Effective hash rate, [Timestamp, #####] (Kh/s)
         self.diff = 4000  # Int difficulty, in my Ethermine pool this is 4000
 
     @property
@@ -143,18 +143,16 @@ class Stats():
             # If new_date is different than last_job_date, overwrite it
             if new_date != self.last_job_date:
                 self.last_job_date = new_date
-
         # Save target difficulty.
-        if 'target:' in f_stat[2]:
+        elif 'target:' in f_stat[2]:
             # target: 0x0000000112e0be82 (diff: 4000MH), epoch 202(2.58GB)
             target = f_stat[2]
             diff = target.split('diff: ', 1)[1]  # 4000MH), epoch 202(2.58GB)
             diff = diff.split('MH)', 1)[0]  # 4000
             diff = int(diff)  # string to int
             self.diff = diff
-
         # Split stats and add them to their lists.
-        if 'ETH - Total Speed:' in f_stat[2]:
+        elif 'ETH - Total Speed:' in f_stat[2]:
             # Add most recent date and current timestamp
             time_w_date = self.last_job_date + ' ' + f_stat[0]
             # Convert str to datetime. e.g. 16:46:34:398
@@ -206,6 +204,8 @@ class Stats():
         # Because ehr can not be calculated with less than an hour of data.
         hour_delta = datetime.timedelta(minutes=60)
         ten_delta = datetime.timedelta(minutes=10)
+        # TODO: Move hour and ten delta somewhere else more easily accessable.
+        # Better yet, make it configurable...?
         if self.uptime >= hour_delta:
             # Create timestamp for ehr_list
             time_w_date = self.last_job_date + ' ' + f_stat[0]
