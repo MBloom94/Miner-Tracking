@@ -1,0 +1,5 @@
+# Required modules to pip install for Miner-tracking
+# Retrying for exception handling
+retrying
+# Matplotlib for plotting
+matplotlib
