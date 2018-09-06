@@ -214,17 +214,29 @@ class Stats():
             # Convert str to datetime. e.g. 16:46:34:398
             timestamp = datetime.datetime.strptime(
                 time_w_date, '%m/%d/%y %H:%M:%S:%f')
-            # If ehr_list is empty
+
+            # Calculate and add effective hash rate to ehrs_list
+            ehr = self.effective_hash_rate()
+            # If ehrs_list is empty
             if not self.ehrs_list:
-                # Calculate and add ehr
                 # Append new ehr stats
-                self.ehrs_list.append([timestamp, self.effective_hash_rate()])
+                self.ehrs_list.append([timestamp, ehr])
             # Else if current stat time is 10 min newer than most recent ehr
             elif timestamp - self.ehrs_list[-1][0] >= ten_delta:
-                # Calculate and add ehr
                 # Append new ehr stats
-                if [timestamp, self.effective_hash_rate()] not in self.ehrs_list:
-                    self.ehrs_list.append([timestamp, self.effective_hash_rate()])
+                if [timestamp, ehr] not in self.ehrs_list:
+                    self.ehrs_list.append([timestamp, ehr])
+
+            # Calculate and append average eff hash rate
+            if self.uptime >= six_delta:
+                avg = self.avg_ehr()
+                if not self.avgs_list:
+                    # Append new avgs stats
+                    self.avgs_list.append([timestamp, avg])
+                elif timestamp - self.avgs_list[-1][0] >= ten_delta:
+                    #Append new avg stats if it isnt a duplicate
+                    if [timestamp, avg] not in self.avgs_list:
+                        self.avgs_list.append([timestamp, avg])
 
         # We want other formatters to be able to return a value to append
         # to self.stats, so this function will return None so that stats does
@@ -280,6 +292,28 @@ class Stats():
     def effective_hash_rate(self):
         '''Calculate and return current effective hash rate.'''
         return round(self.diff * self.shares_last_hour() / 3600, 3) * 1000
+
+    def avg_ehr(self, delta=datetime.timedelta(hours=6)):
+        '''Calculate and return average hash rate from the last 6 hours.'''
+        # Get just the last 6 hours of self.ehrs_list
+        ehrs = []
+        # Timestamp of 6 hours from last ehr
+        ts = self.ehrs_list[-1][0] - delta
+        # Loop through ehrs_list
+        for ehr in self.ehrs_list:
+            # If ehr's timestamp is older than ts
+            if ehr[0] < ts:
+                ehrs.append(int(ehr[1]))
+
+        # ehrs is now a list of hashrates
+        print(ehrs)
+        #
+        # # Traverse a list in reverse order in Python (StackOverflow Answer)
+        # for i, ehr in reversed(list(enumerate(ehrs))):
+        #     if self.ehrs_list[-1][0] - ehr[0] > delta:
+        #         ehrs = ehrs[i:]
+
+
 
 
 # If Miner1Stats.py is run individually...
