@@ -307,12 +307,9 @@ class Stats():
 
         # ehrs is now a list of hashrates
         print(ehrs)
-        #
-        # # Traverse a list in reverse order in Python (StackOverflow Answer)
-        # for i, ehr in reversed(list(enumerate(ehrs))):
-        #     if self.ehrs_list[-1][0] - ehr[0] > delta:
-        #         ehrs = ehrs[i:]
 
+        # TODO: Calculate average of ehrs.
+        # TODO: Return average
 
 
 
