@@ -19,6 +19,7 @@ class Stats():
         self.tshares_list = []  # Total shares as of timestamp.
         self.rejects_list = []  # Rejected shares as of timestamp.
         self.ehrs_list = []  # Effective hash rate, [Timestamp, #####] (Kh/s)
+        self.avgs_list = []  # Average Eff hash rates from last 6 hours
         # Most recent uptime from stats
         self.uptime = datetime.timedelta(minutes=0)
         self.last_job_date = ''  # Most recent date from New job
@@ -202,12 +203,13 @@ class Stats():
         # Update ehr_list every 10 minutes
         # If uptime is an hour or more...
         # Because ehr can not be calculated with less than an hour of data.
+        six_delta = datetime.timedelta(hours=6)
         hour_delta = datetime.timedelta(minutes=60)
         ten_delta = datetime.timedelta(minutes=10)
         # TODO: Move hour and ten delta somewhere else more easily accessable.
         # Better yet, make it configurable...?
         if self.uptime >= hour_delta:
-            # Create timestamp for ehr_list
+            # Add date to the H:M:S:f timestamp from log
             time_w_date = self.last_job_date + ' ' + f_stat[0]
             # Convert str to datetime. e.g. 16:46:34:398
             timestamp = datetime.datetime.strptime(
@@ -215,23 +217,14 @@ class Stats():
             # If ehr_list is empty
             if not self.ehrs_list:
                 # Calculate and add ehr
-                # Get number of shares in last hour
-                shares = self.shares_last_hour()
-                # Calculate effective hash rate.
-                ehr = self.effective_hash_rate()
                 # Append new ehr stats
-                self.ehrs_list.append([timestamp, ehr])
+                self.ehrs_list.append([timestamp, self.effective_hash_rate()])
             # Else if current stat time is 10 min newer than most recent ehr
             elif timestamp - self.ehrs_list[-1][0] >= ten_delta:
                 # Calculate and add ehr
-                # Get number of shares in last hour
-                shares = self.shares_last_hour()
-                # Calculate effective hash rate.
-                ehr = self.effective_hash_rate()
                 # Append new ehr stats
-                if [timestamp, ehr] not in self.ehrs_list:
-                    self.ehrs_list.append([timestamp, ehr])
-                # TODO: Make this an if or.
+                if [timestamp, self.effective_hash_rate()] not in self.ehrs_list:
+                    self.ehrs_list.append([timestamp, self.effective_hash_rate()])
 
         # We want other formatters to be able to return a value to append
         # to self.stats, so this function will return None so that stats does
@@ -269,6 +262,11 @@ class Stats():
         result = None
         if not self.tshares_list:  # If tshares_list is empty
             return result
+
+        '''Grab the newest timestamp, total_shares pair. Find the number of
+        total shares from an hour ago. Return the current shares - shares as
+        of one hour ago, for the shares in the last hour.
+        '''
         cur_shares = self.tshares_list[-1]  # Newest [timestamp, int] share
         # Find share with timestamp 1hr less than cur_shares timestamp
         for share in self.tshares_list:
