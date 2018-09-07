@@ -35,7 +35,8 @@ class Plotter():
         '''Plot live data from Watcher object.'''
 
         self.lines = [self.ax_1.plot_date([], [], 'b-', color='green')[0],
-                      self.ax_1.plot_date([], [], 'b-', color='blue')[0]]
+                      self.ax_1.plot_date([], [], 'b-', color='blue')[0],
+                      self.ax_1.plot_date([], [], 'b-', color='orange')[0]]
 
         # Specific Styling
 
@@ -62,9 +63,10 @@ class Plotter():
             # For each hash rate in hashrates, append to x and y
             x1, y1 = self.set_x_y(stats_source.hash_rates)
             x2, y2 = self.set_x_y(stats_source.ehrs)
+            x3, y3 = self.set_x_y(stats_source.avgs)
 
-            xlist = [x1, x2]
-            ylist = [y1, y2]
+            xlist = [x1, x2, x3]
+            ylist = [y1, y2, y3]
 
             # Set line data, will handle more axes
             for lnum, line in enumerate(self.lines):
