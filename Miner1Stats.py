@@ -44,6 +44,10 @@ class Stats():
     def ehrs(self):
         return self.ehrs_list
 
+    @property
+    def avgs(self):
+        return self.avgs_list
+
     def add_stat(self, new_stat=None, format=True,
                  add_timestamp=False):
         '''Append a new stat to the list of stats.'''

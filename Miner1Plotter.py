@@ -102,6 +102,9 @@ class Plotter():
         x2, y2 = self.set_x_y(stats_source.ehrs)
         plt.plot_date(x2, y2, 'b-', color='blue')
 
+        x3, y3 = self.set_x_y(stats_source.avgs)
+        plt.plot_date(x3, y3, 'b-', color='orange')
+
         # Specific Styling
         def megahashes(x, pos):
             '''Provide formatting for the y axis tickers.'''
