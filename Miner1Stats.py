@@ -2,6 +2,12 @@ import datetime
 import logging
 
 
+# Set global time telta's for use in methods.
+six_delta = datetime.timedelta(hours=6)
+hour_delta = datetime.timedelta(minutes=60)
+ten_delta = datetime.timedelta(minutes=10)
+
+
 class Stats():
     '''Stats object to hold list of stats from Miner1's logs.'''
 
@@ -94,17 +100,24 @@ class Stats():
         if self.stats:  # ...is not empty
             # If current timestamp - oldest timestamp is over an hour
             delta = unf_stat[0] - self.stats[0][0]
-            if delta >= datetime.timedelta(minutes=60):
+            if delta >= hour_delta:
                 ehr = self.effective_hash_rate()
+                if delta >= six_delta:
+                    avg = self.avg_ehr()
+                else:
+                    avg = 0
             else:
                 ehr = 0
+                avg = 0
 
         else:  # stats is empty
             ehr = 0
+            avg = 0
         self.hash_rates_list.append([unf_stat[0], hash_rates])
         self.tshares_list.append([unf_stat[0], tshares])
         self.rejects_list.append([unf_stat[0], rejects])
         self.ehrs_list.append([unf_stat[0], ehr])
+        self.avgs_list.append([unf_stat[0], avg])
         # Returning original stat so that stats.stats_list also has data.
         return unf_stat
 
@@ -207,11 +220,6 @@ class Stats():
         # Update ehr_list every 10 minutes
         # If uptime is an hour or more...
         # Because ehr can not be calculated with less than an hour of data.
-        six_delta = datetime.timedelta(hours=6)
-        hour_delta = datetime.timedelta(minutes=60)
-        ten_delta = datetime.timedelta(minutes=10)
-        # TODO: Move hour and ten delta somewhere else more easily accessable.
-        # Better yet, make it configurable...?
         if self.uptime >= hour_delta:
             # Add date to the H:M:S:f timestamp from log
             time_w_date = self.last_job_date + ' ' + f_stat[0]
