@@ -304,12 +304,12 @@ class Stats():
             # If ehr's timestamp is older than ts
             if ehr[0] < ts:
                 ehrs.append(int(ehr[1]))
-
         # ehrs is now a list of hashrates
-        print(ehrs)
-
-        # TODO: Calculate average of ehrs.
-        # TODO: Return average
+        if ehrs:
+            avg = sum(ehrs) / len(ehrs)
+            return avg
+        else:
+            return None
 
 
 
