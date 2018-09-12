@@ -2,6 +2,7 @@ from matplotlib import pyplot as plt
 from matplotlib import animation
 from matplotlib import dates
 from matplotlib import ticker
+from matplotlib import patches as mpatches
 import time
 import datetime
 import numpy as np
@@ -30,6 +31,16 @@ class Plotter():
         self.fig.autofmt_xdate()
         # Set the y axis range from 0 to 50,000 kH/s
         self.ax_1.set_ylim([0, 50000])
+        # Legend
+        green_patch = mpatches.Patch(color='green',
+                                     label='Reported Hashrate')
+        blue_patch = mpatches.Patch(color='blue',
+                                    label='Effective Hashrate')
+        orange_patch = mpatches.Patch(color='orange',
+                                      label='Avg Effective Hashrate')
+        plt.legend(handles=[green_patch,
+                            blue_patch,
+                            orange_patch])
 
     def plot_live(self, stats_source):
         '''Plot live data from Watcher object.'''
