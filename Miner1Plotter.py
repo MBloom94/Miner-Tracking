@@ -84,10 +84,9 @@ class Plotter():
                 line.set_data(xlist[lnum], ylist[lnum])
 
             # x axis ends at the most recent timestamp,
-            # and starts 60*interval before that.
-            self.ax_1.set_xlim(
-                x1[-1] - datetime.timedelta(minutes=self.data_interval_s),
-                x1[-1])
+            # and starts at a calculated point in the past.
+            start, end = self.calc_x_range(x1)
+            self.ax_1.set_xlim(start, end)
             # TODO: Make this range start smaller, then get larger over time.
             # Largest should be more like a 6hr range for visibility.
             # TODO: Only update range if the range is the same as it was last
@@ -142,6 +141,22 @@ class Plotter():
             x.append(stats_list[h][0])
             y.append(stats_list[h][1])
         return x, y
+
+    def calc_x_range(self, times):
+        '''Return the starting and ending points for the x1 range.'''
+        start = None
+        end = times[-1]  # Current data point
+        delta = times[-1] - times[0]
+        # Minimum range is ten minutes
+        if delta < datetime.timedelta(minutes=10):
+            start = times[-1] - datetime.timedelta(minutes=10)
+        # Next range is 1 hour
+        elif delta < datetime.timedelta(hours=1):
+            start = times[-1] - datetime.timedelta(hours=1)
+        # Maximum range is six hours
+        else:
+            start = times[-1] - datetime.timedelta(hours=6)
+        return start, end
 
 
 if __name__ == '__main__':

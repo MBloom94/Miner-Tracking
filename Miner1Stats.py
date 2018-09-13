@@ -216,39 +216,53 @@ class Stats():
             uptime = datetime.timedelta(hours=int(uptime[0]),
                                         minutes=int(uptime[1]))
             self.uptime = uptime
+        else:
+            # Condition for when f_stat[2], aka the log message,
+            # has no information we care about yet.
+            pass
 
+        '''Now that we have stripped and appended information from the log,
+        we can attempt to calculate the effective hashrate and avg effective
+        hashrate. Then append them to their lists.
+        The following steps require a timestamp with date, which needs a
+        last_job_date to be calculated.
+        '''
+        # Just return if last_job_date doesn't exist.
+        if not self.last_job_date:
+            return None
+        # Otherwise, continue...
+        time_w_date = self.last_job_date + ' ' + f_stat[0]
+        # Convert str to datetime. e.g. 16:46:34:398
+        timestamp = datetime.datetime.strptime(
+            time_w_date, '%m/%d/%y %H:%M:%S:%f')
         # Update ehr_list every 10 minutes
-        # If uptime is an hour or more...
-        # Because ehr can not be calculated with less than an hour of data.
-        if self.uptime >= hour_delta:
-            # Add date to the H:M:S:f timestamp from log
-            time_w_date = self.last_job_date + ' ' + f_stat[0]
-            # Convert str to datetime. e.g. 16:46:34:398
-            timestamp = datetime.datetime.strptime(
-                time_w_date, '%m/%d/%y %H:%M:%S:%f')
+        if not self.ehrs_list:  # If ehrs_list is empty
+            update = True
+        elif timestamp - self.ehrs_list[-1][0] >= ten_delta:
+            update = True
+        else:
+            update = False
+        # Only do calculations if we are updating to save time.
+        if update:
+            # If uptime is an hour or more...
+            # Because ehr can not be calculated with less than an hour of data.
+            if self.uptime >= hour_delta:
+                ehr = self.effective_hash_rate()
+                # Calculate and append average eff hash rate
+                if self.uptime >= six_delta:
+                    avg = self.avg_ehr()
+                else:  # uptime < six hours
+                    avg = 0
+            else:  # uptime < one hour
+                ehr = 0
+                avg = 0
+            # Append new stats
+            self.ehrs_list.append([timestamp, ehr])
+            self.avgs_list.append([timestamp, avg])
+        else:  # update == False
+            # Do nothing
+            pass
 
-            # Calculate and add effective hash rate to ehrs_list
-            ehr = self.effective_hash_rate()
-            # If ehrs_list is empty
-            if not self.ehrs_list:
-                # Append new ehr stats
-                self.ehrs_list.append([timestamp, ehr])
-            # Else if current stat time is 10 min newer than most recent ehr
-            elif timestamp - self.ehrs_list[-1][0] >= ten_delta:
-                # Append new ehr stats
-                if [timestamp, ehr] not in self.ehrs_list:
-                    self.ehrs_list.append([timestamp, ehr])
-
-            # Calculate and append average eff hash rate
-            if self.uptime >= six_delta:
-                avg = self.avg_ehr()
-                if not self.avgs_list:
-                    # Append new avgs stats
-                    self.avgs_list.append([timestamp, avg])
-                elif timestamp - self.avgs_list[-1][0] >= ten_delta:
-                    #Append new avg stats if it isnt a duplicate
-                    if [timestamp, avg] not in self.avgs_list:
-                        self.avgs_list.append([timestamp, avg])
 
         # We want other formatters to be able to return a value to append
         # to self.stats, so this function will return None so that stats does
