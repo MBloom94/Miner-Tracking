@@ -83,17 +83,12 @@ class Plotter():
             for lnum, line in enumerate(self.lines):
                 line.set_data(xlist[lnum], ylist[lnum])
 
-            # x axis ends at the most recent timestamp,
-            # and starts at a calculated point in the past.
-            start, end = self.calc_x_range(x1)
-            self.ax_1.set_xlim(start, end)
-            # TODO: Make this range start smaller, then get larger over time.
-            # Largest should be more like a 6hr range for visibility.
             # TODO: Only update range if the range is the same as it was last
             # animation tick. This is annoying when you are trying to explore
             # data and it jumps back to the live frame. Should be able to use
             # self.ax_1.get_xlim() and self.ax_1.get_ylim() to check location.
-
+            start, end = self.calc_x_range(x1)
+            self.ax_1.set_xlim(start, end)
             return self.lines,
 
         # Assign the animator
