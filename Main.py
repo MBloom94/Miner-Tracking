@@ -60,7 +60,7 @@ if args.live:
         print('Plotting past and live stats with Reader.')
         plotter.plot_live(reader)
     else:
-        print('Plotting live stats with Watcher.')
+        print('Plotting live stats with Watcher every {}s.'.format(inter))
         watcher = Miner1Watcher.Watcher()
         plotter.plot_live(watcher)
 else:

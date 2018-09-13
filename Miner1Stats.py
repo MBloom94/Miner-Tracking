@@ -2,6 +2,12 @@ import datetime
 import logging
 
 
+# Set global time telta's for use in methods.
+six_delta = datetime.timedelta(hours=6)
+hour_delta = datetime.timedelta(minutes=60)
+ten_delta = datetime.timedelta(minutes=10)
+
+
 class Stats():
     '''Stats object to hold list of stats from Miner1's logs.'''
 
@@ -18,7 +24,8 @@ class Stats():
         self.hash_rates_list = []  # [Timestamp, #####] (Kh/s)
         self.tshares_list = []  # Total shares as of timestamp.
         self.rejects_list = []  # Rejected shares as of timestamp.
-        self.ehr_list = []  # Effective hash rate, [Timestamp, #####] (Kh/s)
+        self.ehrs_list = []  # Effective hash rate, [Timestamp, #####] (Kh/s)
+        self.avgs_list = []  # Average Eff hash rates from last 6 hours
         # Most recent uptime from stats
         self.uptime = datetime.timedelta(minutes=0)
         self.last_job_date = ''  # Most recent date from New job
@@ -41,7 +48,11 @@ class Stats():
 
     @property
     def ehrs(self):
-        return self.ehr_list
+        return self.ehrs_list
+
+    @property
+    def avgs(self):
+        return self.avgs_list
 
     def add_stat(self, new_stat=None, format=True,
                  add_timestamp=False):
@@ -89,17 +100,24 @@ class Stats():
         if self.stats:  # ...is not empty
             # If current timestamp - oldest timestamp is over an hour
             delta = unf_stat[0] - self.stats[0][0]
-            if delta >= datetime.timedelta(minutes=60):
+            if delta >= hour_delta:
                 ehr = self.effective_hash_rate()
+                if delta >= six_delta:
+                    avg = self.avg_ehr()
+                else:
+                    avg = 0
             else:
                 ehr = 0
+                avg = 0
 
         else:  # stats is empty
             ehr = 0
+            avg = 0
         self.hash_rates_list.append([unf_stat[0], hash_rates])
         self.tshares_list.append([unf_stat[0], tshares])
         self.rejects_list.append([unf_stat[0], rejects])
-        self.ehr_list.append([unf_stat[0], ehr])
+        self.ehrs_list.append([unf_stat[0], ehr])
+        self.avgs_list.append([unf_stat[0], avg])
         # Returning original stat so that stats.stats_list also has data.
         return unf_stat
 
@@ -198,40 +216,53 @@ class Stats():
             uptime = datetime.timedelta(hours=int(uptime[0]),
                                         minutes=int(uptime[1]))
             self.uptime = uptime
+        else:
+            # Condition for when f_stat[2], aka the log message,
+            # has no information we care about yet.
+            pass
 
+        '''Now that we have stripped and appended information from the log,
+        we can attempt to calculate the effective hashrate and avg effective
+        hashrate. Then append them to their lists.
+        The following steps require a timestamp with date, which needs a
+        last_job_date to be calculated.
+        '''
+        # Just return if last_job_date doesn't exist.
+        if not self.last_job_date:
+            return None
+        # Otherwise, continue...
+        time_w_date = self.last_job_date + ' ' + f_stat[0]
+        # Convert str to datetime. e.g. 16:46:34:398
+        timestamp = datetime.datetime.strptime(
+            time_w_date, '%m/%d/%y %H:%M:%S:%f')
         # Update ehr_list every 10 minutes
-        # If uptime is an hour or more...
-        # Because ehr can not be calculated with less than an hour of data.
-        hour_delta = datetime.timedelta(minutes=60)
-        ten_delta = datetime.timedelta(minutes=10)
-        # TODO: Move hour and ten delta somewhere else more easily accessable.
-        # Better yet, make it configurable...?
-        if self.uptime >= hour_delta:
-            # Create timestamp for ehr_list
-            time_w_date = self.last_job_date + ' ' + f_stat[0]
-            # Convert str to datetime. e.g. 16:46:34:398
-            timestamp = datetime.datetime.strptime(
-                time_w_date, '%m/%d/%y %H:%M:%S:%f')
-            # If ehr_list is empty
-            if not self.ehr_list:
-                # Calculate and add ehr
-                # Get number of shares in last hour
-                shares = self.shares_last_hour()
-                # Calculate effective hash rate.
+        if not self.ehrs_list:  # If ehrs_list is empty
+            update = True
+        elif timestamp - self.ehrs_list[-1][0] >= ten_delta:
+            update = True
+        else:
+            update = False
+        # Only do calculations if we are updating to save time.
+        if update:
+            # If uptime is an hour or more...
+            # Because ehr can not be calculated with less than an hour of data.
+            if self.uptime >= hour_delta:
                 ehr = self.effective_hash_rate()
-                # Append new ehr stats
-                self.ehr_list.append([timestamp, ehr])
-            # Else if current stat time is 10 min newer than most recent ehr
-            elif timestamp - self.ehr_list[-1][0] >= ten_delta:
-                # Calculate and add ehr
-                # Get number of shares in last hour
-                shares = self.shares_last_hour()
-                # Calculate effective hash rate.
-                ehr = self.effective_hash_rate()
-                # Append new ehr stats
-                if [timestamp, ehr] not in self.ehr_list:
-                    self.ehr_list.append([timestamp, ehr])
-                # TODO: Make this an if or.
+                # Calculate and append average eff hash rate
+                if self.uptime >= six_delta:
+                    avg = self.avg_ehr()
+                else:  # uptime < six hours
+                    avg = 0
+            else:  # uptime < one hour
+                ehr = 0
+                avg = 0
+            # Append new stats
+            self.ehrs_list.append([timestamp, ehr])
+            self.avgs_list.append([timestamp, avg])
+        else:  # update == False
+            # Do nothing
+            pass
+
 
         # We want other formatters to be able to return a value to append
         # to self.stats, so this function will return None so that stats does
@@ -269,6 +300,11 @@ class Stats():
         result = None
         if not self.tshares_list:  # If tshares_list is empty
             return result
+
+        '''Grab the newest timestamp, total_shares pair. Find the number of
+        total shares from an hour ago. Return the current shares - shares as
+        of one hour ago, for the shares in the last hour.
+        '''
         cur_shares = self.tshares_list[-1]  # Newest [timestamp, int] share
         # Find share with timestamp 1hr less than cur_shares timestamp
         for share in self.tshares_list:
@@ -282,6 +318,25 @@ class Stats():
     def effective_hash_rate(self):
         '''Calculate and return current effective hash rate.'''
         return round(self.diff * self.shares_last_hour() / 3600, 3) * 1000
+
+    def avg_ehr(self, delta=datetime.timedelta(hours=6)):
+        '''Calculate and return average hash rate from the last 6 hours.'''
+        # Get just the last 6 hours of self.ehrs_list
+        ehrs = []
+        # Timestamp of 6 hours from last ehr
+        ts = self.ehrs_list[-1][0] - delta
+        # Loop through ehrs_list
+        for ehr in self.ehrs_list:
+            # If ehr's timestamp is older than ts
+            if ehr[0] < ts:
+                ehrs.append(int(ehr[1]))
+        # ehrs is now a list of hashrates
+        if ehrs:
+            avg = sum(ehrs) / len(ehrs)
+            return avg
+        else:
+            return None
+
 
 
 # If Miner1Stats.py is run individually...

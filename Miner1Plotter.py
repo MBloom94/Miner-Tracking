@@ -2,6 +2,7 @@ from matplotlib import pyplot as plt
 from matplotlib import animation
 from matplotlib import dates
 from matplotlib import ticker
+from matplotlib import patches as mpatches
 import time
 import datetime
 import numpy as np
@@ -30,12 +31,23 @@ class Plotter():
         self.fig.autofmt_xdate()
         # Set the y axis range from 0 to 50,000 kH/s
         self.ax_1.set_ylim([0, 50000])
+        # Legend
+        green_patch = mpatches.Patch(color='green',
+                                     label='Reported Hashrate')
+        blue_patch = mpatches.Patch(color='blue',
+                                    label='Effective Hashrate')
+        orange_patch = mpatches.Patch(color='orange',
+                                      label='Avg Effective Hashrate')
+        plt.legend(handles=[green_patch,
+                            blue_patch,
+                            orange_patch])
 
     def plot_live(self, stats_source):
         '''Plot live data from Watcher object.'''
 
         self.lines = [self.ax_1.plot_date([], [], 'b-', color='green')[0],
-                      self.ax_1.plot_date([], [], 'b-', color='blue')[0]]
+                      self.ax_1.plot_date([], [], 'b-', color='blue')[0],
+                      self.ax_1.plot_date([], [], 'b-', color='orange')[0]]
 
         # Specific Styling
 
@@ -62,19 +74,19 @@ class Plotter():
             # For each hash rate in hashrates, append to x and y
             x1, y1 = self.set_x_y(stats_source.hash_rates)
             x2, y2 = self.set_x_y(stats_source.ehrs)
+            x3, y3 = self.set_x_y(stats_source.avgs)
 
-            xlist = [x1, x2]
-            ylist = [y1, y2]
+            xlist = [x1, x2, x3]
+            ylist = [y1, y2, y3]
 
             # Set line data, will handle more axes
             for lnum, line in enumerate(self.lines):
                 line.set_data(xlist[lnum], ylist[lnum])
 
             # x axis ends at the most recent timestamp,
-            # and starts 60*interval before that.
-            self.ax_1.set_xlim(
-                x1[-1] - datetime.timedelta(minutes=self.data_interval_s),
-                x1[-1])
+            # and starts at a calculated point in the past.
+            start, end = self.calc_x_range(x1)
+            self.ax_1.set_xlim(start, end)
             # TODO: Make this range start smaller, then get larger over time.
             # Largest should be more like a 6hr range for visibility.
             # TODO: Only update range if the range is the same as it was last
@@ -102,6 +114,9 @@ class Plotter():
         x2, y2 = self.set_x_y(stats_source.ehrs)
         plt.plot_date(x2, y2, 'b-', color='blue')
 
+        x3, y3 = self.set_x_y(stats_source.avgs)
+        plt.plot_date(x3, y3, 'b-', color='orange')
+
         # Specific Styling
         def megahashes(x, pos):
             '''Provide formatting for the y axis tickers.'''
@@ -126,6 +141,22 @@ class Plotter():
             x.append(stats_list[h][0])
             y.append(stats_list[h][1])
         return x, y
+
+    def calc_x_range(self, times):
+        '''Return the starting and ending points for the x1 range.'''
+        start = None
+        end = times[-1]  # Current data point
+        delta = times[-1] - times[0]
+        # Minimum range is ten minutes
+        if delta < datetime.timedelta(minutes=10):
+            start = times[-1] - datetime.timedelta(minutes=10)
+        # Next range is 1 hour
+        elif delta < datetime.timedelta(hours=1):
+            start = times[-1] - datetime.timedelta(hours=1)
+        # Maximum range is six hours
+        else:
+            start = times[-1] - datetime.timedelta(hours=6)
+        return start, end
 
 
 if __name__ == '__main__':

@@ -59,6 +59,10 @@ class Reader():
     def ehrs(self):
         return self.stats.ehrs
 
+    @property
+    def avgs(self):
+        return self.stats.avgs
+
 
 # If Miner1Reader.py is run individually...
 if __name__ == '__main__':

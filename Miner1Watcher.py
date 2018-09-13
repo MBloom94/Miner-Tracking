@@ -134,6 +134,10 @@ class Watcher:
     def ehrs(self):
         return self.stats.ehrs
 
+    @property
+    def avgs(self):
+        return self.stats.avgs
+
 
 # Main Loop, runs until the user hits Ctrl-C to throw KeyboardInterrupt
 if __name__ == '__main__':
