@@ -1,4 +1,5 @@
 import argparse
+import configparser
 import os
 import sys
 import Miner1Stats
@@ -23,15 +24,21 @@ parser.add_argument('-i', '--interval', help='Stats interval in seconds.',
                     type=int)
 args = parser.parse_args()
 
+config = configparser.ConfigParser()
+config.read('config.ini')
+for key in config['DEFAULT']: print(key)
+
 if args.path:
     path = args.path
 else:
     # Default path to Claymore logs directory.
-    # TODO: Add reference to a config file, or find the log files somehow.
-    path = ("C:/Claymore/Claymore Miner/"
-            "Claymore's Dual Ethereum"
-            "+Decred_Siacoin_Lbry_Pascal_Blake2s_Keccak "
-            "AMD+NVIDIA GPU Miner v11.8/")
+    if config['DEFAULT']['path']:
+        path = config['DEFAULT']['path']
+    else:
+        path = ("C:/Claymore/Claymore Miner/"
+                "Claymore's Dual Ethereum"
+                "+Decred_Siacoin_Lbry_Pascal_Blake2s_Keccak "
+                "AMD+NVIDIA GPU Miner v11.8/")
 
 if args.file:
     f = args.file
@@ -49,7 +56,10 @@ else:
 if args.interval:
     inter = args.interval
 else:
-    inter = 60
+    if config['DEFAULT']['interval']:
+        inter = config['DEFAULT']['interval']
+    else:
+        inter = 60
 
 plotter = Miner1Plotter.Plotter(inter)
 reader = Miner1Reader.Reader(path, f)
