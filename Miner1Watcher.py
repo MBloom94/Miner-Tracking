@@ -153,4 +153,4 @@ if __name__ == '__main__':
             # Pause for the interval - the execution time since start_time
             time.sleep(interval - ((time.time() - start_time) % interval))
     except KeyboardInterrupt:
-        print('Closing Miner Watcher...')
+        print('Watcher:Closing Miner Watcher...')

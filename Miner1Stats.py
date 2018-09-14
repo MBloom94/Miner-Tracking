@@ -67,7 +67,7 @@ class Stats():
         to the formatter either way.
         '''
         if new_stat is None:
-            print('No new stat given, none added.')
+            print('Stats:No new stat given, none added.')
             return False  # Allow testing if stat was added or not.
         else:
             if format:
@@ -281,7 +281,7 @@ class Stats():
         CSV is included for testing purposes.
         '''
         if self.type is None:
-            print('Stats created with no type. Stat not formatted.')
+            print('Stats:Stats created with no type. Stat not formatted.')
             return unf_stat
 
         stat_types = {
