@@ -56,10 +56,10 @@ else:
 
 if args.interval:
     inter = args.interval
-    print('Main:Interval set'.format(inter))
+    print('Main:Interval set {}s'.format(inter))
 else:
     if config['DEFAULT']['interval']:
-        inter = config['DEFAULT']['interval']
+        inter = int(config['DEFAULT']['interval'])
     else:
         inter = 60
 
@@ -77,4 +77,7 @@ if args.live:
         plotter.plot_live(watcher)
 else:
     print('Main:Plotting {} with Reader.'.format(f))
-    plotter.plot_static(reader)
+    # plotter.plot_static(reader)
+    # testing
+    watcher = Miner1Watcher.Watcher()
+    plotter.plot_live(watcher)
