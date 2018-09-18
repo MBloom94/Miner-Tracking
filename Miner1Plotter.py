@@ -66,7 +66,7 @@ class Plotter():
             '''Function to drive the animation to be run each interval.'''
             stats_source.update_stats()
             # Print new data to console
-            print('Plotter:{} {} Mh/s, {} Eff Mh/s'.format(
+            print(__name__, '{} {} Mh/s, {} Eff Mh/s'.format(
                 stats_source.hash_rates[-1][0].strftime('%H:%M:%S'),
                 stats_source.hash_rates[-1][1]/1000,
                 stats_source.ehrs[-1][1]/1000))
@@ -155,4 +155,4 @@ class Plotter():
 
 
 if __name__ == '__main__':
-    print('Plotter:Run Plotter from Main with a stats_source.')
+    print(__name__, 'Run Plotter from Main with a stats_source.')

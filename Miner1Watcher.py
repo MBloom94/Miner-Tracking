@@ -107,7 +107,7 @@ class Watcher:
         # Assign pretty_stats a shell to be formatted
         pretty_stats = '{}, {}.{} Mh/s, {} Shares, {} Rejected, {}C, {}%'
         # Print with formatting
-        print(pretty_stats.format(
+        print(__name__, pretty_stats.format(
             # datetime.time(last_line[0]),
             last_line[0].strftime('%H:%M:%S'),
             last_line[1][:-3],  # Tens and Ones place of Mh/s
@@ -153,4 +153,4 @@ if __name__ == '__main__':
             # Pause for the interval - the execution time since start_time
             time.sleep(interval - ((time.time() - start_time) % interval))
     except KeyboardInterrupt:
-        print('Watcher:Closing Miner Watcher...')
+        print(__name__, 'Closing Miner Watcher...')

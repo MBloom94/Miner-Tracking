@@ -29,7 +29,7 @@ config.read('config.ini')
 
 if args.path:
     path = args.path
-    print('Main:Path set {}'.format(path))
+    print(__name__, 'Path set {}'.format(path))
 else:
     # Default path to Claymore logs directory.
     if config['DEFAULT']['path']:
@@ -42,7 +42,7 @@ else:
 
 if args.file:
     f = args.file
-    print('Main:File set {}'.format(f))
+    print(__name__, 'File set {}'.format(f))
 else:
     # Get most recent log in path.
     # Iterate files in order and the last one stays assigned to f
@@ -51,12 +51,12 @@ else:
             if file.endswith('_log.txt'):
                 f = file
     except FileNotFoundError as exc:
-        print('Main:File or direcory not found with path. Try using --path.')
+        print(__name__, 'File or direcory not found with path. Try using --path.')
         sys.exit('Path attempted: \n    {}'.format(path))
 
 if args.interval:
     inter = args.interval
-    print('Main:Interval set {}s'.format(inter))
+    print(__name__, 'Interval set {}s'.format(inter))
 else:
     if config['DEFAULT']['interval']:
         inter = int(config['DEFAULT']['interval'])
@@ -69,12 +69,12 @@ reader = Miner1Reader.Reader(path, f)
 # Plot Static or Live
 if args.live:
     if args.read_log:
-        print('Main:Plotting past and live stats with Reader.')
+        print(__name__, 'Plotting past and live stats with Reader.')
         plotter.plot_live(reader)
     else:
-        print('Main:Plotting live stats with Watcher every {}s.'.format(inter))
+        print(__name__, 'Plotting live stats with Watcher every {}s.'.format(inter))
         watcher = Miner1Watcher.Watcher()
         plotter.plot_live(watcher)
 else:
-    print('Main:Plotting {} with Reader.'.format(f))
+    print(__name__, 'Plotting {} with Reader.'.format(f))
     plotter.plot_static(reader)
