@@ -77,7 +77,4 @@ if args.live:
         plotter.plot_live(watcher)
 else:
     print('Main:Plotting {} with Reader.'.format(f))
-    # plotter.plot_static(reader)
-    # testing
-    watcher = Miner1Watcher.Watcher()
-    plotter.plot_live(watcher)
+    plotter.plot_static(reader)
