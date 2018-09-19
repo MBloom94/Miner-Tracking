@@ -1,11 +1,11 @@
 from setuptools import setup
 
 setup(
-    name = 'Miner',
+    name = 'Tracker',
     version = '0.1',
-    packages = ['Miner'],
+    packages = ['Tracker'],
     entry_points = {
         'console_scripts': [
-            'Miner = Miner.cli:main'
+            'Tracker = Tracker.cli:main'
         ]
     })
