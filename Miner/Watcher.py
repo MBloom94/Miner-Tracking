@@ -4,7 +4,7 @@ import time
 from datetime import datetime
 from retrying import retry
 import sys
-import Miner1Stats as Stats
+import Stats
 
 
 class Watcher:

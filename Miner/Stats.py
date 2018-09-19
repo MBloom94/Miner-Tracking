@@ -11,7 +11,7 @@ ten_delta = datetime.timedelta(minutes=10)
 class Stats():
     '''Stats object to hold list of stats from Miner1's logs.'''
 
-    logging.basicConfig(filename='Miner1Log.log', level=logging.DEBUG)
+    logging.basicConfig(filename='Stats_log.log', level=logging.DEBUG)
 
     def __init__(self, type=None):
         '''Initialize generic and specific stats lists.'''

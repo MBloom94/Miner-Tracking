@@ -26,7 +26,7 @@ class Plotter():
         self.line, = self.ax_1.plot_date([], [], 'b-')  # 'b-' for line graph
 
         # Styling
-        self.fig.canvas.set_window_title('Miner1 Stats')
+        self.fig.canvas.set_window_title('Miner Stats')
         self.ax_1.grid(True)
         self.fig.autofmt_xdate()
         # Set the y axis range from 0 to 50,000 kH/s

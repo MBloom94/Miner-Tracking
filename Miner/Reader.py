@@ -1,4 +1,4 @@
-import Miner1Stats as Stats
+import Stats
 
 
 class Reader():
