@@ -1,6 +1,7 @@
 __pycache__/
 sample logs/
 Miner1Log.log
+Tracker/.DS_Store
 .DS_Store
 *.pyc
 .idea/

@@ -7,6 +7,7 @@ import Reader
 import Watcher
 import Plotter
 
+
 def main():
     parser = argparse.ArgumentParser()
     parser.add_argument('-l', '--live',
@@ -30,17 +31,28 @@ def main():
     config.read(config_file)
 
     if args.path:
+        # If path is given as an argument
         path = args.path
         print(__name__, 'Path set {}'.format(path))
-    else:
-        # Default path to Claymore logs directory.
+        # Check if path exists in config
         if config['DEFAULT']['path']:
+            # Path exists in config, do nothing
+            pass
+        else:
+            # Set config['DEFAULT']['path'] to args.path
+            config['DEFAULT']['path'] = args.path
+            with open(config_file, 'w') as cf:
+                config.write(cf)
+    else:
+        # No path arg given
+        # Check config file
+        if config['DEFAULT']['path']:
+            # Use path from config
             path = config['DEFAULT']['path']
         else:
-            path = ("C:/Claymore/Claymore Miner/"
-                    "Claymore's Dual Ethereum"
-                    "+Decred_Siacoin_Lbry_Pascal_Blake2s_Keccak "
-                    "AMD+NVIDIA GPU Miner v11.8/")
+            # Path not in config or given, get path from user
+            sys.exit('No path arg given, no path in config. Use --path to set path.')
+
 
     if args.file:
         f = args.file
