@@ -1,4 +1,8 @@
 import Stats
+import time
+import datetime
+import sys
+import os
 
 
 class Reader():
@@ -25,6 +29,11 @@ class Reader():
         # add_stat will format it as a Claymore log and add data
         # to a hash rates list.
         print(__name__, 'Reading file: {}'.format(self.file_name))
+        # loading = '\|/-\|/-'
+        points = 0  # Number of '.'s to print
+        tstamp = datetime.datetime.now()
+        delta = datetime.timedelta(seconds=.2)
+        cols, rows = os.get_terminal_size(0)
         # Explicitly setting encoding to ISO-8859-1
         with open(self.path + self.file_name,
                   encoding='ISO-8859-1', mode='r') as f:
@@ -33,6 +42,17 @@ class Reader():
                 if f_line.strip():
                     self.stats.add_stat(f_line)
                     # print(f_line, end='')
+                # Loading animation
+                # If it has been .2s
+                if datetime.datetime.now() - tstamp > delta:
+                    if points <= cols:
+                        sys.stdout.write('.')
+                        sys.stdout.flush()
+                        points += 1
+                    else:
+                        print()
+                    tstamp = datetime.datetime.now()
+            print()
             f.close()
 
     def update_stats(self):
