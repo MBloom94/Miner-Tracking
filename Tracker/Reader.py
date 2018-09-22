@@ -28,7 +28,7 @@ class Reader():
         # Open file to read, for each line add it to stats.
         # add_stat will format it as a Claymore log and add data
         # to a hash rates list.
-        print(__name__, 'Reading file: {}'.format(self.file_name))
+        print('{}: Reading file: {}'.format(__name__, self.file_name))
         # loading = '\|/-\|/-'
         points = 0  # Number of '.'s to print
         tstamp = datetime.datetime.now()
@@ -61,11 +61,11 @@ class Reader():
 
     def print_hash_rates(self):
         for hr in self.stats.hash_rates:
-            print(__name__, '{} - {}'.format(hr[0], hr[1]))
+            print('{}: {} - {}'.format(__name__, hr[0], hr[1]))
 
     def print_total_shares(self):
         for ts in self.stats.tshares_list:
-            print(__name__, '{} Shares as of {}'.format(ts[1], ts[0]))
+            print('{}: {} Shares as of {}'.format(__name__, ts[1], ts[0]))
 
     @property
     def hash_rates(self):

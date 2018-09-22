@@ -33,7 +33,7 @@ def main():
     if args.path:
         # If path is given as an argument
         path = args.path
-        print(__name__, 'Path set {}'.format(path))
+        print('{}: Path set {}'.format(__name__, path))
         # Check if path exists in config
         if config['DEFAULT']['path']:
             # Path exists in config, do nothing
@@ -56,7 +56,7 @@ def main():
 
     if args.file:
         f = args.file
-        print(__name__, 'File set {}'.format(f))
+        print('{}: File set {}'.format(__name__, f))
     else:
         # Get most recent log in path.
         # Iterate files in order and the last one stays assigned to f
@@ -65,12 +65,12 @@ def main():
                 if file.endswith('_log.txt'):
                     f = file
         except FileNotFoundError as exc:
-            print(__name__, 'File or direcory not found with path. Try using --path.')
+            print('{}: File or direcory not found with path. Try using --path.'.format(__name__))
             sys.exit('Path attempted: \n    {}'.format(path))
 
     if args.interval:
         inter = args.interval
-        print(__name__, 'Interval set {}s'.format(inter))
+        print('{}: Interval set {}s'.format(__name__, inter))
     else:
         if config['DEFAULT']['interval']:
             inter = int(config['DEFAULT']['interval'])
@@ -83,12 +83,12 @@ def main():
     # Plot Static or Live
     if args.live:
         if args.read_log:
-            print(__name__, 'Plotting past and live stats with Reader.')
+            print('{}: Plotting past and live stats with Reader.'.format(__name__))
             plotter.plot_live(reader)
         else:
-            print(__name__, 'Plotting live stats with Watcher every {}s.'.format(inter))
+            print('{}: Plotting live stats with Watcher every {}s.'.format(__name__, inter))
             watcher = Watcher.Watcher()
             plotter.plot_live(watcher)
     else:
-        print(__name__, 'Plotting {} with Reader.'.format(f))
+        print('{}: Plotting {} with Reader.'.format(__name__, f))
         plotter.plot_static(reader)

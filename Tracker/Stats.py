@@ -67,7 +67,7 @@ class Stats():
         to the formatter either way.
         '''
         if new_stat is None:
-            print(__name__, 'No new stat given, none added.')
+            print('{}: No new stat given, none added.'.format(__name__))
             return False  # Allow testing if stat was added or not.
         else:
             if format:
@@ -281,7 +281,7 @@ class Stats():
         CSV is included for testing purposes.
         '''
         if self.type is None:
-            print(__name__, 'Stats created with no type. Stat not formatted.')
+            print('{}: Stats created with no type. Stat not formatted.'.format(__name__))
             return unf_stat
 
         stat_types = {
@@ -341,8 +341,4 @@ class Stats():
 
 # If Miner1Stats.py is run individually...
 if __name__ == '__main__':
-    clay_stats = Stats('Claymore log')
-    clay_stats.add_stat('16:46:49:750	285c	'
-                        + 'ETH - Total Speed: 26.302 Mh/s, '
-                        + 'Total Shares: 0, Rejected: 0, Time: 00:00')
-    print(__name__, clay_stats.hash_rates)
+    print('For use by Reader or Watcher.')
