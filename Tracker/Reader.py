@@ -1,39 +1,31 @@
 import Stats
 import time
 import datetime
-import sys
-import os
 
 
 class Reader():
     '''Read, parse, and save a log from Claymore's Miner.'''
 
-    default_path = 'sample logs/'
-    default_file_name = '1533156394_log.txt'
-
-    def __init__(self, path=None, file_name=None):
+    def __init__(self, path, file_name):
         '''Initialize Reader, prep file for reading.'''
-        if path is None:
-            self.path = self.default_path
+        self.path = path
+        # Check if path ends in / or \
+        if path.endswith('/') or path.endswith('\\'):
+            # path is good
+            pass
         else:
-            self.path = path
-        if file_name is None:
-            self.file_name = self.default_file_name
-        else:
-            self.file_name = file_name
+            self.path += '/'
+        self.file_name = file_name
         # Create stats object for Claymore log files.
         self.stats = Stats.Stats(type='Claymore log')
 
     def read_log(self):
-        # Open file to read, for each line add it to stats.
+        '''Open file to read, for each line add it to stats.'''
+        points = 0  # Loading bar num of .s
+
         # add_stat will format it as a Claymore log and add data
         # to a hash rates list.
         print('{}: Reading file: {}'.format(__name__, self.file_name))
-        # loading = '\|/-\|/-'
-        points = 0  # Number of '.'s to print
-        tstamp = datetime.datetime.now()
-        delta = datetime.timedelta(seconds=.2)
-        cols, rows = os.get_terminal_size(0)
         # Explicitly setting encoding to ISO-8859-1
         with open(self.path + self.file_name,
                   encoding='ISO-8859-1', mode='r') as f:
@@ -43,15 +35,8 @@ class Reader():
                     self.stats.add_stat(f_line)
                     # print(f_line, end='')
                 # Loading animation
-                # If it has been .2s
-                if datetime.datetime.now() - tstamp > delta:
-                    if points <= cols:
-                        sys.stdout.write('.')
-                        sys.stdout.flush()
-                        points += 1
-                    else:
-                        print()
-                    tstamp = datetime.datetime.now()
+                print('{}: Reading line: {}'.format(__name__, points), end="\r")
+                points += 1
             print()
             f.close()
 

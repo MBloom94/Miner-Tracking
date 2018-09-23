@@ -5,7 +5,7 @@ from matplotlib import ticker
 from matplotlib import patches as mpatches
 import time
 import datetime
-import numpy as np
+
 
 
 class Plotter():
@@ -127,6 +127,7 @@ class Plotter():
         plt.xlim(x[0], x[-1])
         # plt.ylim(0, 40000)
 
+        print('{}: Showing plot.'.format(__name__))
         plt.show()
 
     def set_x_y(self, stats_list):
