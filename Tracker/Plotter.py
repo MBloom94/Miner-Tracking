@@ -150,9 +150,12 @@ class Plotter():
         # Next range is 1 hour
         elif delta < datetime.timedelta(hours=1):
             start = times[-1] - datetime.timedelta(hours=1)
-        # Maximum range is six hours
-        else:
+        # Next range is six hours
+        elif delta < datetime.timedelta(hours=6):
             start = times[-1] - datetime.timedelta(hours=6)
+        # Max range is 12 hours
+        else:
+            start = times[-1] - datetime.timedelta(hours=12)
         return start, end
 
 
