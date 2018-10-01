@@ -83,12 +83,12 @@ def main():
     # Plot Static or Live
     if args.live:
         if args.read_log:
-            print('{}: Plotting past and live stats with Reader.'.format(__name__))
+            print('{}: Plotting live stats with log every {}s.'.format(__name__, inter))
             plotter.plot_live(reader)
         else:
-            print('{}: Plotting live stats with Watcher every {}s.'.format(__name__, inter))
+            print('{}: Plotting live stats every {}s.'.format(__name__, inter))
             watcher = Watcher.Watcher()
             plotter.plot_live(watcher)
     else:
-        print('{}: Plotting {} with Reader.'.format(__name__, f))
+        print('{}: Plotting {}.'.format(__name__, f))
         plotter.plot_static(reader)
