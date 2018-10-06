@@ -78,6 +78,7 @@ def main():
             inter = 60
 
     plotter = Plotter.Plotter(inter)
+    # Set default plotter range
     reader = Reader.Reader(path, f)
 
     # Plot Static or Live
