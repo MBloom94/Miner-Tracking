@@ -17,7 +17,8 @@ class Watcher:
                'jsonrpc': '2.0',
                'method': 'miner_getstat1'}  # dict
     request = json.dumps(request)  # converts dict to str
-    request = bytes(request, 'utf-8')  # converts str to bytes-object
+    request = bytes(request + '\n', 'utf-8')  # converts str to bytes-object
+    # + '\n' is for support with Phoenix Miner
 
     def __init__(self):
         '''Create stats headers and a Stats.stats_list.'''
@@ -46,7 +47,7 @@ class Watcher:
         try:
             s.connect((self.host, self.port))
             s.sendall(Watcher.request)  # Send request bytes object
-            response = s.recv(1024)  # Recieve response
+            response = s.recv(1024)  # Receive response
             response = json.loads(response)  # Convert bytes to dict
             s.close()
             return response
