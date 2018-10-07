@@ -29,8 +29,8 @@ class Plotter():
         self.fig.canvas.set_window_title('Miner Stats')
         self.ax_1.grid(True)
         self.fig.autofmt_xdate()
-        # Set the y axis range from 0 to 50,000 kH/s
-        self.ax_1.set_ylim([0, 50000])
+        # Set the y axis range from 0 to 100,000 kH/s
+        self.ax_1.set_ylim([0, 100000])
         # Legend
         green_patch = mpatches.Patch(color='green',
                                      label='Reported Hashrate')
