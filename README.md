@@ -27,7 +27,7 @@ Show live hashrate of local miner.
 
 Show live hashrate of multiple miners on the local network.
 
-* python Tracker -l --miners INT
+* python Tracker -l --miners/-m INT
 
 * Tedious plan for telling Tracker how many miners on the network we want to watch. Once we know how many we will check config for multiple [Miner#] sections for hosts and ports.
 Then, when Plotter asks Watcher for stats, Watcher will add its stats objs together and return the sum.
