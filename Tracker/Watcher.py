@@ -3,15 +3,17 @@ import json
 import time
 from datetime import datetime
 from retrying import retry
+import os
 import sys
 import Stats
+import configparser
 
 
 class Watcher:
     '''Watches Miner and collects stats'''
 
-    host = '192.168.1.66'
-    port = 3333
+    host = None
+    port = None
     # Create json request to send
     request = {'id': 0,
                'jsonrpc': '2.0',
@@ -27,6 +29,31 @@ class Watcher:
         self.stats_headers = ['datetime', 'hashrate',
                               'shares', 'rejects',
                               'temp', 'fans']
+        # Get host and port from config or user
+        config = configparser.ConfigParser()
+        config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
+        config.read(config_file)
+        # Host from config
+        if config['DEFAULT']['host']:
+            self.host = config['DEFAULT']['host']
+            print('{}: Host set {}'.format(__name__, self.host))
+        else:  # Host from user, overwrites in config
+            self.host = input('No host set. Enter host IP.\n>')
+            print('{}: Host set: {}'.format(__name__, self.host))
+            config['DEFAULT']['host'] = self.host
+            with open(config_file, 'w') as cf:
+                config.write(cf)
+        # Port from config
+        if config['DEFAULT']['port']:
+            self.port = int(config['DEFAULT']['port'])
+            print('{}: Port set {}'.format(__name__, self.port))
+        else:  # Port from user, overwrites in config
+            # TODO: Get port from user
+            self.port = input('No port set. Enter port number.\n>')
+            print('{}: Port set: {}'.format(__name__, self.port))
+            config['DEFAULT']['port'] = self.port
+            with open(config_file, 'w') as cf:
+                config.write(cf)
 
     def retry_on_oserror(exc):
         '''Return true if the exception is an OSError.'''
