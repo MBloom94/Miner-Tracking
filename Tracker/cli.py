@@ -87,8 +87,8 @@ def main():
             print('{}: Plotting live stats with log every {}s.'.format(__name__, inter))
             plotter.plot_live(reader)
         else:
-            print('{}: Plotting live stats every {}s.'.format(__name__, inter))
             watcher = Watcher.Watcher()
+            print('{}: Plotting live stats every {}s.'.format(__name__, inter))
             plotter.plot_live(watcher)
     else:
         print('{}: Plotting {}.'.format(__name__, f))

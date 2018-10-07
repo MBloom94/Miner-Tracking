@@ -24,6 +24,10 @@ class Watcher:
 
     def __init__(self):
         '''Create stats headers and a Stats.stats_list.'''
+        # TODO: Determine number of stats sources/miners there are
+        # maybe an optional param int? default is one local one?
+        # if
+        miner_name = 'Miner2'
         self.stats = Stats.Stats('Claymore json')
         # TODO: make stats_headers part of Stats
         self.stats_headers = ['datetime', 'hashrate',
@@ -34,24 +38,23 @@ class Watcher:
         config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
         config.read(config_file)
         # Host from config
-        if config['DEFAULT']['host']:
-            self.host = config['DEFAULT']['host']
+        if config[miner_name]['host']:
+            self.host = config[miner_name]['host']
             print('{}: Host set {}'.format(__name__, self.host))
         else:  # Host from user, overwrites in config
             self.host = input('No host set. Enter host IP.\n>')
             print('{}: Host set: {}'.format(__name__, self.host))
-            config['DEFAULT']['host'] = self.host
+            config[miner_name]['host'] = self.host
             with open(config_file, 'w') as cf:
                 config.write(cf)
         # Port from config
-        if config['DEFAULT']['port']:
-            self.port = int(config['DEFAULT']['port'])
+        if config[miner_name]['port']:
+            self.port = int(config[miner_name]['port'])
             print('{}: Port set {}'.format(__name__, self.port))
         else:  # Port from user, overwrites in config
-            # TODO: Get port from user
             self.port = input('No port set. Enter port number.\n>')
             print('{}: Port set: {}'.format(__name__, self.port))
-            config['DEFAULT']['port'] = self.port
+            config[miner_name]['port'] = self.port
             with open(config_file, 'w') as cf:
                 config.write(cf)
 
@@ -83,8 +86,9 @@ class Watcher:
 
     def get_new_stat(self):
         '''Parse and return the 'result' from the response.'''
-        response = self.get_new_response()
         timestamp = datetime.now()
+        #
+        response = self.get_new_response()
         # TODO: Get datetime timestamp - exe time... maybe half?
         # id = response['id']  Potentially use these in the future
         # error = response['error']  Potentially use these in the future
