@@ -79,17 +79,18 @@ def main():
 
     plotter = Plotter.Plotter(inter)
     # Set default plotter range
-    reader = Reader.Reader(path, f)
 
     # Plot Static or Live
     if args.live:
         if args.read_log:
+            reader = Reader.Reader(path, f)
             print('{}: Plotting live stats with log every {}s.'.format(__name__, inter))
             plotter.plot_live(reader)
         else:
             watcher = Watcher.Watcher()
             print('{}: Plotting live stats every {}s.'.format(__name__, inter))
             plotter.plot_live(watcher)
-    else:
+    else:        
+        reader = Reader.Reader(path, f)
         print('{}: Plotting {}.'.format(__name__, f))
         plotter.plot_static(reader)

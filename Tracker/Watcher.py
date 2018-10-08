@@ -22,12 +22,21 @@ class Watcher:
     request = bytes(request + '\n', 'utf-8')  # converts str to bytes-object
     # + '\n' is for support with Phoenix Miner
 
-    def __init__(self):
+    def __init__(self, miners=None):
         '''Create stats headers and a Stats.stats_list.'''
         # TODO: Determine number of stats sources/miners there are
         # maybe an optional param int? default is one local one?
-        # if
-        miner_name = 'Miner2'
+        #
+        # Trying 'miners' as a list of strings, miner names.
+        # Default is none, sets screwdriver default.
+        if miners is None:
+            self.miners = ['SCREWDRIVER']
+            print('{}: WARNING: No miner specified. Using default {}'.format(__name__, self.miners[0]))
+        else:
+            self.miners = miners
+        # TODO: Change to for each miner in miners...
+        miner = self.miners[0]
+        # Manage multiple stats, one per miner. Maybe add stats.name?
         self.stats = Stats.Stats('Claymore json')
         # TODO: make stats_headers part of Stats
         self.stats_headers = ['datetime', 'hashrate',
@@ -38,23 +47,23 @@ class Watcher:
         config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
         config.read(config_file)
         # Host from config
-        if config[miner_name]['host']:
-            self.host = config[miner_name]['host']
+        if config[miner]['host']:
+            self.host = config[miner]['host']
             print('{}: Host set {}'.format(__name__, self.host))
         else:  # Host from user, overwrites in config
             self.host = input('No host set. Enter host IP.\n>')
             print('{}: Host set: {}'.format(__name__, self.host))
-            config[miner_name]['host'] = self.host
+            config[miner]['host'] = self.host
             with open(config_file, 'w') as cf:
                 config.write(cf)
         # Port from config
-        if config[miner_name]['port']:
-            self.port = int(config[miner_name]['port'])
+        if config[miner]['port']:
+            self.port = int(config[miner]['port'])
             print('{}: Port set {}'.format(__name__, self.port))
         else:  # Port from user, overwrites in config
             self.port = input('No port set. Enter port number.\n>')
             print('{}: Port set: {}'.format(__name__, self.port))
-            config[miner_name]['port'] = self.port
+            config[miner]['port'] = self.port
             with open(config_file, 'w') as cf:
                 config.write(cf)
 
