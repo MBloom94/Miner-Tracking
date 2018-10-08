@@ -22,20 +22,20 @@ class Watcher:
     request = bytes(request + '\n', 'utf-8')  # converts str to bytes-object
     # + '\n' is for support with Phoenix Miner
 
-    def __init__(self, miners=None):
+    def __init__(self, miner):
         '''Create stats headers and a Stats.stats_list.'''
         # TODO: Determine number of stats sources/miners there are
         # maybe an optional param int? default is one local one?
         #
         # Trying 'miners' as a list of strings, miner names.
         # Default is none, sets screwdriver default.
-        if miners is None:
-            self.miners = ['SCREWDRIVER']
-            print('{}: WARNING: No miner specified. Using default {}'.format(__name__, self.miners[0]))
+        if miner is None:
+            self.miner = 'SCREWDRIVER'
+            print('{}: WARNING: No miner specified. Using default {}'.format(__name__, self.miner))
         else:
-            self.miners = miners
+            self.miner = miner
         # TODO: Change to for each miner in miners...
-        miner = self.miners[0]
+        miner = self.miner
         # Manage multiple stats, one per miner. Maybe add stats.name?
         self.stats = Stats.Stats('Claymore json')
         # TODO: make stats_headers part of Stats

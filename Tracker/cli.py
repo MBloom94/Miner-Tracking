@@ -24,6 +24,7 @@ def main():
     parser.add_argument('-f', '--file', help='File name.')
     parser.add_argument('-i', '--interval', help='Stats interval in seconds.',
                         type=int)
+    parser.add_argument('-m', '--miner', help='Name of miner for watcher.')
     args = parser.parse_args()
 
     config = configparser.ConfigParser()
@@ -87,7 +88,15 @@ def main():
             print('{}: Plotting live stats with log every {}s.'.format(__name__, inter))
             plotter.plot_live(reader)
         else:
-            watcher = Watcher.Watcher()
+            # Using Watcher for live stats
+            if args.miner:
+                miner = args.miner
+                print('{}: Miner set {}'.format(__name__, miner))
+            else:
+                miner = 'SCREWDRIVER'
+                print('{}: Miner not set. Using default {}'.format(__name__, miner))
+
+            watcher = Watcher.Watcher(miner)
             print('{}: Plotting live stats every {}s.'.format(__name__, inter))
             plotter.plot_live(watcher)
     else:
