@@ -90,7 +90,7 @@ def main():
             watcher = Watcher.Watcher()
             print('{}: Plotting live stats every {}s.'.format(__name__, inter))
             plotter.plot_live(watcher)
-    else:        
+    else:
         reader = Reader.Reader(path, f)
         print('{}: Plotting {}.'.format(__name__, f))
         plotter.plot_static(reader)
