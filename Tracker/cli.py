@@ -6,6 +6,7 @@ import Stats
 import Reader
 import Watcher
 import Plotter
+import Miner
 
 
 def main():
@@ -37,20 +38,20 @@ def main():
         path = args.path
         print('{}: Path set {}'.format(__name__, path))
         # Check if path exists in config
-        if config['DEFAULT']['path']:
+        if config['GENERAL']['path']:
             # Path exists in config, do nothing
             pass
         else:
-            # Set config['DEFAULT']['path'] to args.path
-            config['DEFAULT']['path'] = args.path
+            # Set config['GENERAL']['path'] to args.path
+            config['GENERAL']['path'] = args.path
             with open(config_file, 'w') as cf:
                 config.write(cf)
     else:
         # No path arg given
         # Check config file
-        if config['DEFAULT']['path']:
+        if config['GENERAL']['path']:
             # Use path from config
-            path = config['DEFAULT']['path']
+            path = config['GENERAL']['path']
         else:
             # Path not in config or given, get path from user
             sys.exit('No path arg given, no path in config. Use --path to set path.')
@@ -75,8 +76,8 @@ def main():
         inter = args.interval
         print('{}: Interval set {}s'.format(__name__, inter))
     else:
-        if config['DEFAULT']['interval']:
-            inter = int(config['DEFAULT']['interval'])
+        if config['GENERAL']['interval']:
+            inter = int(config['GENERAL']['interval'])
         else:
             inter = 60
 
@@ -106,14 +107,39 @@ def main():
         plotter.plot_static(reader)
 
     def watch():
+        #  Get miners
+        #  First check args
         if args.miner:
-            miner = args.miner
-            print('{}: Miner set {}'.format(__name__, miner))
+            #  Look for given miner in config
+            if config[args.miner]:
+                #  Miner exists in config file, create instance
+                miners = Miner.Miner(args.miner, #  Name
+                                    config[args.miner]['host'],
+                                    config[args.miner]['port'])
+                print('{}: Miner set {}'.format(__name__, str(miners)))
+            else:
+                sys.exit('Miner not in config.')
+        #  Second check config
+        elif int(config['GENERAL']['miners']) > 0:
+            #  Get miners from config
+            num_miners = int(config['GENERAL']['miners'])
+            miners = []
+            print(config.sections())
+            for each_section in config.sections():
+                if each_section == 'GENERAL':
+                    #  General is not a miner name, skip this section.
+                    pass
+                else:
+                    #  For each miner section...
+                    new_miner = Miner.Miner(each_section, #  Name
+                                            config.get(each_section, 'host'),
+                                            config.get(each_section, 'port'))
+                    miners.append(new_miner)
         else:
-            miner = 'SCREWDRIVER'
-            print('{}: Miner not set. Using default {}'.format(__name__, miner))
+            #  No miners in config
+            print('{}: Miner not set. Add one to config.'.format(__name__))
 
-        watcher = Watcher.Watcher(miner)
+        watcher = Watcher.Watcher(miners)
         print('{}: Plotting live stats every {}s.'.format(__name__, inter))
         plotter.plot_live(watcher)
 
