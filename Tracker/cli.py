@@ -9,16 +9,16 @@ import Plotter
 
 
 def main():
+    '''CLI entrypoint'''
+    # Set up arguments
     parser = argparse.ArgumentParser()
     parser.add_argument('-l', '--live',
                         help=("Plot live data. By default uses Watcher with "
-                              "default interval. Aditionally use -r / --read_log "
-                              "to use Reader."),
+                              "default interval. "),
                         action='store_true')
     parser.add_argument('-r', '--read_log',
-                        help=("If --live is set, --read_log will cause Reader to "
-                              "be used instead of Watcher to plot log data and "
-                              "then continue plotting live data."),
+                        help=("Plot a log file. Use --path and --file to "
+                              "specify source."),
                         action='store_true')
     parser.add_argument('-p', '--path', help='Path to file\'s directory.')
     parser.add_argument('-f', '--file', help='File name.')
@@ -26,11 +26,12 @@ def main():
                         type=int)
     parser.add_argument('-m', '--miner', help='Name of miner for watcher.')
     args = parser.parse_args()
-
+    # Get config info from file
     config = configparser.ConfigParser()
     config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
     config.read(config_file)
 
+    # Get file path
     if args.path:
         # If path is given as an argument
         path = args.path
@@ -54,7 +55,7 @@ def main():
             # Path not in config or given, get path from user
             sys.exit('No path arg given, no path in config. Use --path to set path.')
 
-
+    # Get file name
     if args.file:
         f = args.file
         print('{}: File set {}'.format(__name__, f))
@@ -69,6 +70,7 @@ def main():
             print('{}: File or direcory not found with path. Try using --path.'.format(__name__))
             sys.exit('Path attempted: \n    {}'.format(path))
 
+    # Set data interval
     if args.interval:
         inter = args.interval
         print('{}: Interval set {}s'.format(__name__, inter))
@@ -78,28 +80,70 @@ def main():
         else:
             inter = 60
 
+    '''Command logic for which data source to plot'''
+
+    #  Set command
+    if args.live and args.read_log:
+        sys.exit('Use either --live or --read_log but not both.')
+    elif args.live:
+        command = 'watch'
+    elif args.read_log:
+        command = 'read'
+
+    # Prep plotter
     plotter = Plotter.Plotter(inter)
-    # Set default plotter range
+    # TODO: Set default plotter range
 
-    # Plot Static or Live
-    if args.live:
-        if args.read_log:
-            reader = Reader.Reader(path, f)
-            print('{}: Plotting live stats with log every {}s.'.format(__name__, inter))
-            plotter.plot_live(reader)
-        else:
-            # Using Watcher for live stats
-            if args.miner:
-                miner = args.miner
-                print('{}: Miner set {}'.format(__name__, miner))
-            else:
-                miner = 'SCREWDRIVER'
-                print('{}: Miner not set. Using default {}'.format(__name__, miner))
+    '''Commands'''
 
-            watcher = Watcher.Watcher(miner)
-            print('{}: Plotting live stats every {}s.'.format(__name__, inter))
-            plotter.plot_live(watcher)
-    else:
+    def default():
+        #  Get default stat source from config_file
+        watch()
+
+    def read():
         reader = Reader.Reader(path, f)
         print('{}: Plotting {}.'.format(__name__, f))
         plotter.plot_static(reader)
+
+    def watch():
+        if args.miner:
+            miner = args.miner
+            print('{}: Miner set {}'.format(__name__, miner))
+        else:
+            miner = 'SCREWDRIVER'
+            print('{}: Miner not set. Using default {}'.format(__name__, miner))
+
+        watcher = Watcher.Watcher(miner)
+        print('{}: Plotting live stats every {}s.'.format(__name__, inter))
+        plotter.plot_live(watcher)
+
+    command_pick = {
+        'default': default,
+        'read': read,
+        'watch': watch
+    }
+    com = command_pick.get(command)
+    com()
+
+    # # Plot Static or Live
+    # if args.live:
+    #     if args.read_log:
+    #         reader = Reader.Reader(path, f)
+    #         print('{}: Plotting live stats with log every {}s.'.format(__name__, inter))
+    #         plotter.plot_live(reader)
+    #     else:
+    #         # Using Watcher for live stats
+    #         if args.miner:
+    #             miner = args.miner
+    #             print('{}: Miner set {}'.format(__name__, miner))
+    #         else:
+    #             miner = 'SCREWDRIVER'
+    #             print('{}: Miner not set. Using default {}'.format(__name__, miner))
+    #
+    #         watcher = Watcher.Watcher(miner)
+    #         print('{}: Plotting live stats every {}s.'.format(__name__, inter))
+    #         plotter.plot_live(watcher)
+    # else:
+    #     reader = Reader.Reader(path, f)
+    #     print('{}: Plotting {}.'.format(__name__, f))
+    #     plotter.plot_static(reader)
