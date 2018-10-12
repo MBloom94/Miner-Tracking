@@ -66,7 +66,7 @@ class Plotter():
             '''Function to drive the animation to be run each interval.'''
             stats_source.update_stats()
             # Print new data to console
-            print('{}: {} {} Mh/s, {} Eff Mh/s'.format(
+            print('{}: {} {:.3f} Mh/s, {:.3f} Eff Mh/s'.format(
                 __name__,
                 stats_source.hash_rates[-1][0].strftime('%H:%M:%S'),
                 stats_source.hash_rates[-1][1]/1000,
