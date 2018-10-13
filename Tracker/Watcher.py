@@ -6,14 +6,13 @@ from retrying import retry
 import os
 import sys
 import Stats
+import Miner
 import configparser
 
 
 class Watcher:
     '''Watches Miner and collects stats'''
 
-    host = None
-    port = None
     # Create json request to send
     request = {'id': 0,
                'jsonrpc': '2.0',
@@ -22,50 +21,12 @@ class Watcher:
     request = bytes(request + '\n', 'utf-8')  # converts str to bytes-object
     # + '\n' is for support with Phoenix Miner
 
-    def __init__(self, miner):
+    def __init__(self, miners):
         '''Create stats headers and a Stats.stats_list.'''
-        # TODO: Determine number of stats sources/miners there are
-        # maybe an optional param int? default is one local one?
-        #
-        # Trying 'miners' as a list of strings, miner names.
-        # Default is none, sets screwdriver default.
-        if miner is None:
-            self.miner = 'SCREWDRIVER'
-            print('{}: WARNING: No miner specified. Using default {}'.format(__name__, self.miner))
-        else:
-            self.miner = miner
-        # TODO: Change to for each miner in miners...
-        miner = self.miner
-        # Manage multiple stats, one per miner. Maybe add stats.name?
-        self.stats = Stats.Stats('Claymore json')
-        # TODO: make stats_headers part of Stats
-        self.stats_headers = ['datetime', 'hashrate',
-                              'shares', 'rejects',
-                              'temp', 'fans']
-        # Get host and port from config or user
-        config = configparser.ConfigParser()
-        config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
-        config.read(config_file)
-        # Host from config
-        if config[miner]['host']:
-            self.host = config[miner]['host']
-            print('{}: Host set {}'.format(__name__, self.host))
-        else:  # Host from user, overwrites in config
-            self.host = input('No host set. Enter host IP.\n>')
-            print('{}: Host set: {}'.format(__name__, self.host))
-            config[miner]['host'] = self.host
-            with open(config_file, 'w') as cf:
-                config.write(cf)
-        # Port from config
-        if config[miner]['port']:
-            self.port = int(config[miner]['port'])
-            print('{}: Port set {}'.format(__name__, self.port))
-        else:  # Port from user, overwrites in config
-            self.port = input('No port set. Enter port number.\n>')
-            print('{}: Port set: {}'.format(__name__, self.port))
-            config[miner]['port'] = self.port
-            with open(config_file, 'w') as cf:
-                config.write(cf)
+
+        self.miners = miners
+        self.stats_totals = Stats.Stats('Claymore json')
+
 
     def retry_on_oserror(exc):
         '''Return true if the exception is an OSError.'''
@@ -77,14 +38,14 @@ class Watcher:
     let it retry after an OSError. # TODO: specify it as WinError 10048'''
     @retry(wait_fixed=100, stop_max_attempt_number=5,
            retry_on_exception=retry_on_oserror)
-    def get_new_response(self):
+    def get_new_response(self, miner):
         '''Open a socket stream, send a request, and return the response.'''
         # Create a socket stream
         s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
 
         # If Claymore is running
         try:
-            s.connect((self.host, self.port))
+            s.connect((miner.host, miner.port))
             s.sendall(Watcher.request)  # Send request bytes object
             response = s.recv(1024)  # Receive response
             response = json.loads(response)  # Convert bytes to dict
@@ -93,11 +54,11 @@ class Watcher:
         except ConnectionRefusedError as exc:
             sys.exit('Connection refused.\n    Check if Claymore is running.')
 
-    def get_new_stat(self):
+    def get_new_stat(self, miner):
         '''Parse and return the 'result' from the response.'''
         timestamp = datetime.now()
         #
-        response = self.get_new_response()
+        response = self.get_new_response(miner)
         # TODO: Get datetime timestamp - exe time... maybe half?
         # id = response['id']  Potentially use these in the future
         # error = response['error']  Potentially use these in the future
@@ -110,7 +71,7 @@ class Watcher:
         # print('Got_new_stat:')
         # print('--> {}'.format(new_stat))
         # self.stats.stats_list.append(new_stat)
-        self.stats.add_stat(new_stat)
+        miner.stats.add_stat(new_stat)
 
     def stretch_stats(self, stats_clumpy):
         '''Split and insert 2nd level list items into the parent lists.
@@ -162,23 +123,66 @@ class Watcher:
 
     def update_stats(self):
         '''Update stats lists with get_new_stat for plotter.'''
-        self.get_new_stat()
+        #  For each miner, fetch new stats
+        for miner in self.miners:
+            self.get_new_stat(miner)
+        #  Update stat totals
+        #  Create new 'total stat' to add
+        # datetime, Kh/s, total shares, rejects
+        # ['datetime obj', '26406', '1038', '0']
+        sum_ts = datetime.now()
+        #  This is fine... I can get a more accurate timestamp later
+        sum_hr = 0
+        sum_shares = 0
+        sum_rejects = 0
+        # Add up all the miners most recent hashrates
+        for miner in self.miners:
+            sum_hr += miner.stats.hash_rates[-1][1]
+            sum_shares += miner.stats.tshares[-1][1]
+            sum_rejects += miner.stats.rejects[-1][1]
+
+        sum_stat = [sum_ts, sum_hr, sum_shares, sum_rejects] #
+        self.stats_totals.add_stat(sum_stat)
+
+
+    @property
+    def timestamps(self):
+        return self.stats_totals.hash_rates
 
     @property
     def hash_rates(self):
-        return self.stats.hash_rates
+        '''Return the sum of all miners hash_rates'''
+        #  Start with the hash_rates_list from the first miner
+        # sum_ = self.miners[0].stats.hash_rates #  [[datetime, hr]]
+        # for miner in self.miners[1:]:
+        #     for i, (ts, hr) in enumerate(miner.stats.hash_rates):
+        #         sum_[i][1] += hr
+        return self.stats_totals.hash_rates
 
     @property
     def tshares(self):
-        return self.stats.tshares
+        '''Return the sum of all miners shares'''
+        return self.stats_totals.tshares
 
     @property
     def ehrs(self):
-        return self.stats.ehrs
+        '''Return the sum of all miners effective_hash_rates'''
+        #  Same concept as hash_rates
+        # sum_ = self.miners[0].stats.ehrs
+        # for miner in self.miners[1:]:
+        #     for i, (ts, ehr) in enumerate(miner.stats.ehrs):
+        #         sum_[i][1] += ehr
+        return self.stats_totals.ehrs
 
     @property
     def avgs(self):
-        return self.stats.avgs
+        '''Return sum of avgs'''
+        #  See ehrs() and hash_rates()
+        # sum_ = self.miners[0].stats.avgs
+        # for miner in self.miners[1:]:
+        #     for i, (ts, avg) in  enumerate(miner.stats.avgs):
+        #         sum_[i][1] += avg
+        return self.stats_totals.avgs
 
 
 # Main Loop, runs until the user hits Ctrl-C to throw KeyboardInterrupt
