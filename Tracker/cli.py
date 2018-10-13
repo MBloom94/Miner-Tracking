@@ -149,8 +149,12 @@ def main():
         # TODO: Validate miners, if theyre inactive remove them from the list
 
         watcher = Watcher.Watcher(miners)
-        print('{}: Plotting {} stats every {}s.'.format(__name__, miners, inter))
+        # TODO: formate miners to print miner names instead of instances
+        names = [miner.name for miner in miners]
+        print('{}: Plotting {} stats every {}s.'.format(__name__, names, inter))
         plotter.plot_live(watcher)
+
+    # TODO: Add a command to add a new miner to config
 
     command_pick = {
         'default': default,
