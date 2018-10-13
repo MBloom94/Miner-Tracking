@@ -90,6 +90,10 @@ def main():
         command = 'watch'
     elif args.read_log:
         command = 'read'
+    else:
+        #  Default command
+        #  TODO: check config file for configurable default instead
+        command = 'watch'
 
     # Prep plotter
     plotter = Plotter.Plotter(inter)
@@ -108,15 +112,18 @@ def main():
 
     def watch():
         #  Get miners
+        miners = []
         #  First check args
         if args.miner:
             #  Look for given miner in config
             if config[args.miner]:
                 #  Miner exists in config file, create instance
-                miners = Miner.Miner(args.miner, #  Name
+                new_miner = Miner.Miner(args.miner, #  Name
                                     config[args.miner]['host'],
-                                    config[args.miner]['port'])
-                print('{}: Miner set {}'.format(__name__, str(miners)))
+                                    config[args.miner]['port'],
+                                    Stats.Stats('Claymore json'))
+                miners.append(new_miner)
+                print('{}: Miner set {}'.format(__name__, str(new_miner)))
             else:
                 sys.exit('Miner not in config.')
         #  Second check config
@@ -124,7 +131,6 @@ def main():
             #  Get miners from config
             num_miners = int(config['GENERAL']['miners'])
             miners = []
-            print(config.sections())
             for each_section in config.sections():
                 if each_section == 'GENERAL':
                     #  General is not a miner name, skip this section.
@@ -133,14 +139,17 @@ def main():
                     #  For each miner section...
                     new_miner = Miner.Miner(each_section, #  Name
                                             config.get(each_section, 'host'),
-                                            config.get(each_section, 'port'))
+                                            config.get(each_section, 'port'),
+                                            Stats.Stats('Claymore json'))
                     miners.append(new_miner)
         else:
             #  No miners in config
             print('{}: Miner not set. Add one to config.'.format(__name__))
 
+        # TODO: Validate miners, if theyre inactive remove them from the list
+
         watcher = Watcher.Watcher(miners)
-        print('{}: Plotting live stats every {}s.'.format(__name__, inter))
+        print('{}: Plotting {} stats every {}s.'.format(__name__, miners, inter))
         plotter.plot_live(watcher)
 
     command_pick = {
