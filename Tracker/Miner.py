@@ -1,13 +1,18 @@
-
+import Stats
 
 class Miner():
     '''Miner obj to hold info & stats'''
 
-    def __init__(self, name, host, port):
+    def __init__(self, name, host, port, stats=None):
         '''Initialize parameters'''
         self._name = name
         self._host = host
-        self._port = port
+        self._port = int(port)
+        if stats is None:
+            self._stats = Stats.Stats('Claymore json')
+        else:
+            self._stats = stats
+
 
     def __str__(self):
         return self._name
@@ -23,3 +28,7 @@ class Miner():
     @property
     def port(self):
         return self._port
+
+    @property
+    def stats(self):
+        return self._stats
