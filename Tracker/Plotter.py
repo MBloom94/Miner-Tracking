@@ -68,7 +68,7 @@ class Plotter():
             # Print new data to console
             print('{}: {} {:.3f} Mh/s, {:.3f} Eff Mh/s'.format(
                 __name__,
-                stats_source.hash_rates[-1][0].strftime('%H:%M:%S'),
+                stats_source.timestamps[-1][0].strftime('%H:%M:%S'),
                 stats_source.hash_rates[-1][1]/1000,
                 stats_source.ehrs[-1][1]/1000))
 
