@@ -64,8 +64,7 @@ class Plotter():
             '''Function to drive the animation to be run each interval.'''
             stats_source.update_stats()
             # Print new data to console
-            print('{}: {} {:.3f} Mh/s, {:.3f} Eff MH/s'.format(
-                __name__,
+            print('Total: {} {:.3f} MH/s, {:.3f} Eff MH/s'.format(
                 stats_source.timestamps[-1][0].strftime('%H:%M:%S'),
                 stats_source.hash_rates[-1][1]/1000,
                 stats_source.ehrs[-1][1]/1000))
