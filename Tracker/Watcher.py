@@ -152,11 +152,6 @@ class Watcher:
     @property
     def hash_rates(self):
         '''Return the sum of all miners hash_rates'''
-        #  Start with the hash_rates_list from the first miner
-        # sum_ = self.miners[0].stats.hash_rates #  [[datetime, hr]]
-        # for miner in self.miners[1:]:
-        #     for i, (ts, hr) in enumerate(miner.stats.hash_rates):
-        #         sum_[i][1] += hr
         return self.stats_totals.hash_rates
 
     @property
@@ -167,21 +162,11 @@ class Watcher:
     @property
     def ehrs(self):
         '''Return the sum of all miners effective_hash_rates'''
-        #  Same concept as hash_rates
-        # sum_ = self.miners[0].stats.ehrs
-        # for miner in self.miners[1:]:
-        #     for i, (ts, ehr) in enumerate(miner.stats.ehrs):
-        #         sum_[i][1] += ehr
         return self.stats_totals.ehrs
 
     @property
     def avgs(self):
         '''Return sum of avgs'''
-        #  See ehrs() and hash_rates()
-        # sum_ = self.miners[0].stats.avgs
-        # for miner in self.miners[1:]:
-        #     for i, (ts, avg) in  enumerate(miner.stats.avgs):
-        #         sum_[i][1] += avg
         return self.stats_totals.avgs
 
 

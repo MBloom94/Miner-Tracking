@@ -31,11 +31,11 @@ class Plotter():
         self.fig.autofmt_xdate()
         # Legend
         green_patch = mpatches.Patch(color='green',
-                                     label='Reported Hashrate')
+                                     label='Reported MH/s')
         blue_patch = mpatches.Patch(color='blue',
-                                    label='Effective Hashrate')
+                                    label='Effective MH/s')
         orange_patch = mpatches.Patch(color='orange',
-                                      label='Avg Effective Hashrate')
+                                      label='Avg Effective MH/s')
         plt.legend(handles=[green_patch,
                             blue_patch,
                             orange_patch])
@@ -51,7 +51,7 @@ class Plotter():
 
         def megahashes(x, pos):
             '''Provide formatting for the y axis tickers.'''
-            return '{0:.0f} Mh/s'.format(x/1000)  # e.g. 26 Mh/s
+            return '{0:.0f} MH/s'.format(x/1000)  # e.g. 26 Mh/s
 
         # Create formatters.
         self.ax_1.format_xdata = dates.DateFormatter('%H:%M:%S')
@@ -64,7 +64,7 @@ class Plotter():
             '''Function to drive the animation to be run each interval.'''
             stats_source.update_stats()
             # Print new data to console
-            print('{}: {} {:.3f} Mh/s, {:.3f} Eff Mh/s'.format(
+            print('{}: {} {:.3f} Mh/s, {:.3f} Eff MH/s'.format(
                 __name__,
                 stats_source.timestamps[-1][0].strftime('%H:%M:%S'),
                 stats_source.hash_rates[-1][1]/1000,
