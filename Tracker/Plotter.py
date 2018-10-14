@@ -92,8 +92,8 @@ class Plotter():
             start, end = self.calc_x_range(x1)
             self.ax_1.set_xlim(start, end)
             # TODO: Actually implement calc_y_range
-            # start, end = self.calc_y_range(y1)
-            # self.ax_1.set_ylim(start, end)
+            start, end = self.calc_y_range(y1)
+            self.ax_1.set_ylim(start, end)
             return self.lines,
 
         # Assign the animator
@@ -166,11 +166,19 @@ class Plotter():
 
         return start, end
 
-    def calc_y_range(self, times):
+    def calc_y_range(self, rates):
         '''Return start and end data points for the y range'''
-        # Get max value from times
         start = 0
+        end = None
+        max = 0
+        # Get max value from times
+        for rate in rates:
+            if rate > max:
+                max = rate
         # Set end max(times) * 2
+        end = max * 2
+
+        return start, end
 
 
 

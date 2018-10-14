@@ -149,9 +149,8 @@ def main():
         # TODO: Validate miners, if theyre inactive remove them from the list
 
         watcher = Watcher.Watcher(miners)
-        # TODO: formate miners to print miner names instead of instances
         names = [miner.name for miner in miners]
-        print('{}: Plotting {} stats every {}s.'.format(__name__, names, inter))
+        print('{}: Plotting {} stats every {}s.'.format(__name__, ', '.join(names), inter))
         plotter.plot_live(watcher)
 
     # TODO: Add a command to add a new miner to config
@@ -163,26 +162,3 @@ def main():
     }
     com = command_pick.get(command)
     com()
-
-    # # Plot Static or Live
-    # if args.live:
-    #     if args.read_log:
-    #         reader = Reader.Reader(path, f)
-    #         print('{}: Plotting live stats with log every {}s.'.format(__name__, inter))
-    #         plotter.plot_live(reader)
-    #     else:
-    #         # Using Watcher for live stats
-    #         if args.miner:
-    #             miner = args.miner
-    #             print('{}: Miner set {}'.format(__name__, miner))
-    #         else:
-    #             miner = 'SCREWDRIVER'
-    #             print('{}: Miner not set. Using default {}'.format(__name__, miner))
-    #
-    #         watcher = Watcher.Watcher(miner)
-    #         print('{}: Plotting live stats every {}s.'.format(__name__, inter))
-    #         plotter.plot_live(watcher)
-    # else:
-    #     reader = Reader.Reader(path, f)
-    #     print('{}: Plotting {}.'.format(__name__, f))
-    #     plotter.plot_static(reader)
