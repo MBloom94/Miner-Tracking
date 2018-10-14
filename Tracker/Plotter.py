@@ -29,9 +29,6 @@ class Plotter():
         self.fig.canvas.set_window_title('Miner Stats')
         self.ax_1.grid(True)
         self.fig.autofmt_xdate()
-        # TODO: implement calc_y_range
-        # Set the y axis range from 0 to 100,000 kH/s
-        self.ax_1.set_ylim([0, 100000])
         # Legend
         green_patch = mpatches.Patch(color='green',
                                      label='Reported Hashrate')
@@ -91,7 +88,6 @@ class Plotter():
             # self.ax_1.get_xlim() and self.ax_1.get_ylim() to check location.
             start, end = self.calc_x_range(x1)
             self.ax_1.set_xlim(start, end)
-            # TODO: Actually implement calc_y_range
             start, end = self.calc_y_range(y1)
             self.ax_1.set_ylim(start, end)
             return self.lines,
@@ -129,8 +125,8 @@ class Plotter():
         self.ax_1.yaxis.set_major_locator(ticker.AutoLocator())
 
         plt.xlim(x[0], x[-1])
-        # TODO: Implement calc_y_range
-        # plt.ylim(0, 40000)
+        start, end = self.calc_y_range(y1)
+        self.ax_1.set_ylim(start, end)
 
         print('{}: Showing plot.'.format(__name__))
         plt.show()
