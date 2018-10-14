@@ -21,6 +21,10 @@ def main():
                         help=("Plot a log file. Use --path and --file to "
                               "specify source."),
                         action='store_true')
+    parser.add_argument('-a', '--add_miner',
+                        help=("Add a new miner to config file. Prompts user "
+                              "for details."),
+                        action='store_true')
     parser.add_argument('-p', '--path', help='Path to file\'s directory.')
     parser.add_argument('-f', '--file', help='File name.')
     parser.add_argument('-i', '--interval', help='Stats interval in seconds.',
@@ -90,6 +94,8 @@ def main():
         command = 'watch'
     elif args.read_log:
         command = 'read'
+    elif args.add_miner:
+        command = 'add_miner'
     else:
         command = 'default'
 
@@ -154,11 +160,16 @@ def main():
         plotter.plot_live(watcher)
 
     # TODO: Add a command to add a new miner to config
+    def add_miner():
+        '''Add a miner to config file.'''
+        # TODO: Implement meeeee
+        print('TODO: Implement me')
 
     command_pick = {
         'default': default,
         'read': read,
-        'watch': watch
+        'watch': watch,
+        'add_miner': add_miner
     }
     com = command_pick.get(command)
     com()
