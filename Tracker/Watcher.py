@@ -52,26 +52,33 @@ class Watcher:
             s.close()
             return response
         except ConnectionRefusedError as exc:
-            sys.exit('Connection refused.\n    Check if Claymore is running.')
+            print('Connection with {} refused.'.format(miner.name))
+            return False
+            # sys.exit('Connection refused.\n    Check if Claymore is running.')
 
     def get_new_stat(self, miner):
         '''Parse and return the 'result' from the response.'''
         timestamp = datetime.now()
-        #
+        # Get response from host
         response = self.get_new_response(miner)
-        # TODO: Get datetime timestamp - exe time... maybe half?
-        # id = response['id']  Potentially use these in the future
-        # error = response['error']  Potentially use these in the future
-        result = response['result']  # list
-        # Get the parts we care about from the result
-        new_stat = [timestamp, result[2], result[6]]
-        # Stretch 2 and 6 out into their own list items
-        new_stat = self.stretch_stats(new_stat)
-        # new_stat == ['2670', '26406', '1038', '0', '59', '38'] for example.
-        # print('Got_new_stat:')
-        # print('--> {}'.format(new_stat))
-        # self.stats.stats_list.append(new_stat)
-        miner.stats.add_stat(new_stat)
+        if response is not False:
+            # TODO: Get datetime timestamp - exe time... maybe half?
+            # id = response['id']  Potentially use these in the future
+            # error = response['error']  Potentially use these in the future
+            result = response['result']  # list
+            # Get the parts we care about from the result
+            new_stat = [timestamp, result[2], result[6]]
+            # Stretch 2 and 6 out into their own list items
+            new_stat = self.stretch_stats(new_stat)
+            # new_stat == ['2670', '26406', '1038', '0', '59', '38'] for example.
+            # print('Got_new_stat:')
+            # print('--> {}'.format(new_stat))
+            # self.stats.stats_list.append(new_stat)
+            miner.stats.add_stat(new_stat)
+            return True
+        else:
+            # Response returned False. Cannot connect to miner.
+            return False
 
     def stretch_stats(self, stats_clumpy):
         '''Split and insert 2nd level list items into the parent lists.
@@ -123,9 +130,20 @@ class Watcher:
 
     def update_stats(self):
         '''Update miners stats and total stats.'''
+        failed = None
         #  For each miner, fetch new stats
         for miner in self.miners:
-            self.get_new_stat(miner)
+            if self.get_new_stat(miner):
+                # New stat has been added
+                print('{}: {:.3f} MH/s'.format(
+                    miner,
+                    miner.stats.hash_rates[-1][1]/1000))
+            else:
+                # New stat not added. Remove miner
+                failed = miner
+                print('{} ignored.'.format(miner))
+        if failed is not None:
+            self.miners.remove(failed)
         #  Update stat totals
         #  Create new 'total stat' to add
         # datetime, kH/s, total shares, rejects
