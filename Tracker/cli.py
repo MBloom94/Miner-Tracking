@@ -25,6 +25,9 @@ def main():
                         help=("Add a new miner to config file. Prompts user "
                               "for details."),
                         action='store_true')
+    parser.add_argument('--list',
+                        help='List miners in config.',
+                        action='store_true')
     parser.add_argument('-p', '--path', help='Path to file\'s directory.')
     parser.add_argument('-f', '--file', help='File name.')
     parser.add_argument('-i', '--interval', help='Stats interval in seconds.',
@@ -96,6 +99,8 @@ def main():
         command = 'read'
     elif args.add_miner:
         command = 'add_miner'
+    elif args.list:
+        command = 'list_miners'
     else:
         command = 'default'
 
@@ -159,17 +164,42 @@ def main():
         print('{}: Plotting {} stats every {}s.'.format(__name__, ', '.join(names), inter))
         plotter.plot_live(watcher)
 
+    def list_miners():
+        '''Print all miners in config'''
+        for each_section in config.sections():
+            if each_section == 'GENERAL':
+                pass
+            else:
+                print('[{}]'.format(each_section))
+                print('>', config.get(each_section, 'host'))
+                print('>', config.get(each_section, 'port'))
+
+
     # TODO: Add a command to add a new miner to config
     def add_miner():
         '''Add a miner to config file.'''
         # TODO: Implement meeeee
-        print('TODO: Implement me')
+        name = input('Name: ')
+        host = input('IP Address: ')
+        port = input('Port: ')
+        config.add_section(name)
+        config.set(name, 'host', host)
+        config.set(name, 'port', port)
+
+        with open(config_file, 'w') as cf:
+            config.write(cf)
+
+        list_miners()
+
+
+
 
     command_pick = {
         'default': default,
         'read': read,
         'watch': watch,
-        'add_miner': add_miner
+        'add_miner': add_miner,
+        'list_miners': list_miners
     }
     com = command_pick.get(command)
     com()
