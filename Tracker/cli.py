@@ -99,15 +99,18 @@ def main():
     '''Commands'''
 
     def default():
+        '''Execute the default command.'''
         #  Get default stat source from config_file
         watch()
 
     def read():
+        '''Create a Reader, plot a static graph with it'''
         reader = Reader.Reader(path, f)
         print('{}: Plotting {}.'.format(__name__, f))
         plotter.plot_static(reader)
 
     def watch():
+        '''Create list of miners, validate them, plot them live.'''
         #  Get miners
         miners = []
         #  First check args
