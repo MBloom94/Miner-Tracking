@@ -161,7 +161,7 @@ def main():
 
         watcher = Watcher.Watcher(miners)
         names = [miner.name for miner in miners]
-        print('{}: Plotting {} stats every {}s.'.format(__name__, ', '.join(names), inter))
+        print('Plotting {} stats every {}s.'.format(', '.join(names), inter))
         plotter.plot_live(watcher)
 
     def list_miners():
