@@ -122,13 +122,13 @@ class Watcher:
         ))
 
     def update_stats(self):
-        '''Update stats lists with get_new_stat for plotter.'''
+        '''Update miners stats and total stats.'''
         #  For each miner, fetch new stats
         for miner in self.miners:
             self.get_new_stat(miner)
         #  Update stat totals
         #  Create new 'total stat' to add
-        # datetime, Kh/s, total shares, rejects
+        # datetime, kH/s, total shares, rejects
         # ['datetime obj', '26406', '1038', '0']
         sum_ts = datetime.now()
         #  This is fine... I can get a more accurate timestamp later
@@ -141,7 +141,7 @@ class Watcher:
             sum_shares += miner.stats.tshares[-1][1]
             sum_rejects += miner.stats.rejects[-1][1]
 
-        sum_stat = [sum_ts, sum_hr, sum_shares, sum_rejects] #
+        sum_stat = [sum_ts, sum_hr, sum_shares, sum_rejects]
         self.stats_totals.add_stat(sum_stat)
 
 

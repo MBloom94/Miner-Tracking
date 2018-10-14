@@ -91,13 +91,10 @@ def main():
     elif args.read_log:
         command = 'read'
     else:
-        #  Default command
-        #  TODO: check config file for configurable default instead
-        command = 'watch'
+        command = 'default'
 
     # Prep plotter
     plotter = Plotter.Plotter(inter)
-    # TODO: Set default plotter range
 
     '''Commands'''
 
