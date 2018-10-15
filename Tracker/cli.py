@@ -174,8 +174,6 @@ def main():
                 print('>', config.get(each_section, 'host'))
                 print('>', config.get(each_section, 'port'))
 
-
-    # TODO: Add a command to add a new miner to config
     def add_miner():
         '''Add a miner to config file.'''
         # TODO: Implement meeeee
@@ -191,8 +189,7 @@ def main():
 
         list_miners()
 
-
-
+    '''Get function from command name, execute.'''
 
     command_pick = {
         'default': default,
