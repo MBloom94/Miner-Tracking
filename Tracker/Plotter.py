@@ -124,7 +124,7 @@ class Plotter():
         self.ax_1.yaxis.set_major_locator(ticker.AutoLocator())
 
         plt.xlim(x[0], x[-1])
-        start, end = self.calc_y_range(y1)
+        start, end = self.calc_y_range(y)
         self.ax_1.set_ylim(start, end)
 
         print('{}: Showing plot.'.format(__name__))
