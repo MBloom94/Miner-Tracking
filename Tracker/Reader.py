@@ -53,6 +53,10 @@ class Reader():
             print('{}: {} Shares as of {}'.format(__name__, ts[1], ts[0]))
 
     @property
+    def timestamps(self):
+        return self.stats.hash_rates #  This is used with timestamps[-1][0]
+
+    @property
     def hash_rates(self):
         return self.stats.hash_rates
 

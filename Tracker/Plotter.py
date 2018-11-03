@@ -26,18 +26,16 @@ class Plotter():
         self.line, = self.ax_1.plot_date([], [], 'b-')  # 'b-' for line graph
 
         # Styling
-        self.fig.canvas.set_window_title('Miner Stats')
+        self.fig.canvas.set_window_title('Miner Tracker')
         self.ax_1.grid(True)
         self.fig.autofmt_xdate()
-        # Set the y axis range from 0 to 100,000 kH/s
-        self.ax_1.set_ylim([0, 100000])
         # Legend
         green_patch = mpatches.Patch(color='green',
-                                     label='Reported Hashrate')
+                                     label='Reported MH/s')
         blue_patch = mpatches.Patch(color='blue',
-                                    label='Effective Hashrate')
+                                    label='Effective MH/s')
         orange_patch = mpatches.Patch(color='orange',
-                                      label='Avg Effective Hashrate')
+                                      label='Avg Effective MH/s')
         plt.legend(handles=[green_patch,
                             blue_patch,
                             orange_patch])
@@ -53,7 +51,7 @@ class Plotter():
 
         def megahashes(x, pos):
             '''Provide formatting for the y axis tickers.'''
-            return '{0:.0f} Mh/s'.format(x/1000)  # e.g. 26 Mh/s
+            return '{0:.0f} MH/s'.format(x/1000)  # e.g. 26 Mh/s
 
         # Create formatters.
         self.ax_1.format_xdata = dates.DateFormatter('%H:%M:%S')
@@ -66,9 +64,8 @@ class Plotter():
             '''Function to drive the animation to be run each interval.'''
             stats_source.update_stats()
             # Print new data to console
-            print('{}: {} {} Mh/s, {} Eff Mh/s'.format(
-                __name__,
-                stats_source.hash_rates[-1][0].strftime('%H:%M:%S'),
+            print('Total: {} {:.3f} MH/s, {:.3f} Eff MH/s'.format(
+                stats_source.timestamps[-1][0].strftime('%H:%M:%S'),
                 stats_source.hash_rates[-1][1]/1000,
                 stats_source.ehrs[-1][1]/1000))
 
@@ -90,6 +87,8 @@ class Plotter():
             # self.ax_1.get_xlim() and self.ax_1.get_ylim() to check location.
             start, end = self.calc_x_range(x1)
             self.ax_1.set_xlim(start, end)
+            start, end = self.calc_y_range(y1)
+            self.ax_1.set_ylim(start, end)
             return self.lines,
 
         # Assign the animator
@@ -125,7 +124,8 @@ class Plotter():
         self.ax_1.yaxis.set_major_locator(ticker.AutoLocator())
 
         plt.xlim(x[0], x[-1])
-        # plt.ylim(0, 40000)
+        start, end = self.calc_y_range(y)
+        self.ax_1.set_ylim(start, end)
 
         print('{}: Showing plot.'.format(__name__))
         plt.show()
@@ -160,6 +160,21 @@ class Plotter():
             start = times[-1] - datetime.timedelta(hours=24)
 
         return start, end
+
+    def calc_y_range(self, rates):
+        '''Return start and end data points for the y range'''
+        start = 0
+        end = None
+        max = 0
+        # Get max value from times
+        for rate in rates:
+            if rate > max:
+                max = rate
+        # Set end max(times) * 2
+        end = max * 2
+
+        return start, end
+
 
 
 if __name__ == '__main__':

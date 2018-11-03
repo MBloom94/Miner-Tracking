@@ -37,14 +37,15 @@ class Stats():
 
     @property
     def hash_rates(self):
-        '''Get current hash rate list [[timestamp, hash_rate],
-            [timestamp, hash_rate], etc...]
-        '''
         return self.hash_rates_list
 
     @property
     def tshares(self):
         return self.tshares_list
+
+    @property
+    def rejects(self):
+        return self.rejects_list
 
     @property
     def ehrs(self):

@@ -6,54 +6,64 @@ import Stats
 import Reader
 import Watcher
 import Plotter
+import Miner
 
 
 def main():
+    '''CLI entrypoint'''
+    # Set up arguments
     parser = argparse.ArgumentParser()
     parser.add_argument('-l', '--live',
                         help=("Plot live data. By default uses Watcher with "
-                              "default interval. Aditionally use -r / --read_log "
-                              "to use Reader."),
+                              "default interval. "),
                         action='store_true')
     parser.add_argument('-r', '--read_log',
-                        help=("If --live is set, --read_log will cause Reader to "
-                              "be used instead of Watcher to plot log data and "
-                              "then continue plotting live data."),
+                        help=("Plot a log file. Use --path and --file to "
+                              "specify source."),
+                        action='store_true')
+    parser.add_argument('-a', '--add_miner',
+                        help=("Add a new miner to config file. Prompts user "
+                              "for details."),
+                        action='store_true')
+    parser.add_argument('--list',
+                        help='List miners in config.',
                         action='store_true')
     parser.add_argument('-p', '--path', help='Path to file\'s directory.')
     parser.add_argument('-f', '--file', help='File name.')
     parser.add_argument('-i', '--interval', help='Stats interval in seconds.',
                         type=int)
+    parser.add_argument('-m', '--miner', help='Name of miner for watcher.')
     args = parser.parse_args()
-
+    # Get config info from file
     config = configparser.ConfigParser()
     config_file = os.path.join(os.path.dirname(__file__), 'config.ini')
     config.read(config_file)
 
+    # Get file path
     if args.path:
         # If path is given as an argument
         path = args.path
         print('{}: Path set {}'.format(__name__, path))
         # Check if path exists in config
-        if config['DEFAULT']['path']:
+        if config['GENERAL']['path']:
             # Path exists in config, do nothing
             pass
         else:
-            # Set config['DEFAULT']['path'] to args.path
-            config['DEFAULT']['path'] = args.path
+            # Set config['GENERAL']['path'] to args.path
+            config['GENERAL']['path'] = args.path
             with open(config_file, 'w') as cf:
                 config.write(cf)
     else:
         # No path arg given
         # Check config file
-        if config['DEFAULT']['path']:
+        if config['GENERAL']['path']:
             # Use path from config
-            path = config['DEFAULT']['path']
+            path = config['GENERAL']['path']
         else:
             # Path not in config or given, get path from user
             sys.exit('No path arg given, no path in config. Use --path to set path.')
 
-
+    # Get file name
     if args.file:
         f = args.file
         print('{}: File set {}'.format(__name__, f))
@@ -68,28 +78,125 @@ def main():
             print('{}: File or direcory not found with path. Try using --path.'.format(__name__))
             sys.exit('Path attempted: \n    {}'.format(path))
 
+    # Set data interval
     if args.interval:
         inter = args.interval
         print('{}: Interval set {}s'.format(__name__, inter))
     else:
-        if config['DEFAULT']['interval']:
-            inter = int(config['DEFAULT']['interval'])
+        if config['GENERAL']['interval']:
+            inter = int(config['GENERAL']['interval'])
         else:
             inter = 60
 
-    plotter = Plotter.Plotter(inter)
-    # Set default plotter range
-    reader = Reader.Reader(path, f)
+    '''Command logic for which data source to plot'''
 
-    # Plot Static or Live
-    if args.live:
-        if args.read_log:
-            print('{}: Plotting live stats with log every {}s.'.format(__name__, inter))
-            plotter.plot_live(reader)
-        else:
-            print('{}: Plotting live stats every {}s.'.format(__name__, inter))
-            watcher = Watcher.Watcher()
-            plotter.plot_live(watcher)
+    #  Set command
+    if args.live and args.read_log:
+        sys.exit('Use either --live or --read_log but not both.')
+    elif args.live:
+        command = 'watch'
+    elif args.read_log:
+        command = 'read'
+    elif args.add_miner:
+        command = 'add_miner'
+    elif args.list:
+        command = 'list_miners'
     else:
+        command = 'default'
+
+    # Prep plotter
+    plotter = Plotter.Plotter(inter)
+
+    '''Commands'''
+
+    def default():
+        '''Execute the default command.'''
+        #  Get default stat source from config_file
+        watch()
+
+    def read():
+        '''Create a Reader, plot a static graph with it'''
+        reader = Reader.Reader(path, f)
         print('{}: Plotting {}.'.format(__name__, f))
         plotter.plot_static(reader)
+
+    def watch():
+        '''Create list of miners, validate them, plot them live.'''
+        #  Get miners
+        miners = []
+        #  First check args
+        if args.miner:
+            #  Look for given miner in config
+            if config[args.miner]:
+                #  Miner exists in config file, create instance
+                new_miner = Miner.Miner(args.miner, #  Name
+                                    config[args.miner]['host'],
+                                    config[args.miner]['port'],
+                                    Stats.Stats('Claymore json'))
+                miners.append(new_miner)
+                print('{}: Miner set {}'.format(__name__, str(new_miner)))
+            else:
+                sys.exit('Miner not in config.')
+        #  Second check config
+        elif int(config['GENERAL']['miners']) > 0:
+            #  Get miners from config
+            num_miners = int(config['GENERAL']['miners'])
+            miners = []
+            for each_section in config.sections():
+                if each_section == 'GENERAL':
+                    #  General is not a miner name, skip this section.
+                    pass
+                else:
+                    #  For each miner section...
+                    new_miner = Miner.Miner(each_section, #  Name
+                                            config.get(each_section, 'host'),
+                                            config.get(each_section, 'port'),
+                                            Stats.Stats('Claymore json'))
+                    miners.append(new_miner)
+        else:
+            #  No miners in config
+            print('{}: Miner not set. Add one to config.'.format(__name__))
+
+        # TODO: Validate miners, if theyre inactive remove them from the list
+
+        watcher = Watcher.Watcher(miners)
+        names = [miner.name for miner in miners]
+        print('Plotting {} stats every {}s.'.format(', '.join(names), inter))
+        plotter.plot_live(watcher)
+
+    def list_miners():
+        '''Print all miners in config'''
+        for each_section in config.sections():
+            if each_section == 'GENERAL':
+                pass
+            else:
+                print('[{}]'.format(each_section))
+                print('>', config.get(each_section, 'host'))
+                print('>', config.get(each_section, 'port'))
+
+    def add_miner():
+        '''Add a miner to config file.'''
+        # TODO: Implement meeeee
+        name = input('Name: ')
+        host = input('IP Address: ')
+        port = input('Port: ')
+        config.add_section(name)
+        config.set(name, 'host', host)
+        config.set(name, 'port', port)
+
+        with open(config_file, 'w') as cf:
+            config.write(cf)
+
+        list_miners()
+
+    '''Get function from command name, execute.'''
+
+    command_pick = {
+        'default': default,
+        'read': read,
+        'watch': watch,
+        'add_miner': add_miner,
+        'list_miners': list_miners
+    }
+    com = command_pick.get(command)
+    com()
