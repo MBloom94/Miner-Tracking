@@ -36,8 +36,8 @@ class Watcher:
     and it would raise an error that the socket was in use. To resolve this,
     I import retrying and use the retry decorator, with a function to
     let it retry after an OSError. # TODO: specify it as WinError 10048'''
-    @retry(wait_fixed=100, stop_max_attempt_number=5,
-           retry_on_exception=retry_on_oserror)
+    #@retry(wait_fixed=100, stop_max_attempt_number=5,
+    #       retry_on_exception=retry_on_oserror)
     def get_new_response(self, miner):
         '''Open a socket stream, send a request, and return the response.'''
         # Create a socket stream
@@ -45,16 +45,18 @@ class Watcher:
 
         # If Claymore is running
         try:
-            s.connect((miner.host, miner.port))
+            s.connect((miner.host, miner.port))  # Check connection with miner
             s.sendall(Watcher.request)  # Send request bytes object
             response = s.recv(1024)  # Receive response
             response = json.loads(response)  # Convert bytes to dict
             s.close()
             return response
-        except ConnectionRefusedError as exc:
+        except ConnectionRefusedError:
             print('Connection with {} refused.'.format(miner.name))
             return False
-            # sys.exit('Connection refused.\n    Check if Claymore is running.')
+        except TimeoutError:
+            print('TimeoutError connecting to {} at {}.'.format(miner.name, miner. host))
+            return False
 
     def get_new_stat(self, miner):
         '''Parse and return the 'result' from the response.'''
