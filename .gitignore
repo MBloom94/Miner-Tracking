@@ -6,4 +6,4 @@ Tracker/.DS_Store
 *.pyc
 .idea/
 Stats_log.log
-config.ini
+Tracker/config.ini
